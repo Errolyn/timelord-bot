@@ -1,0 +1,11 @@
+{
+    "name": "timelord",
+    "version": "0.1.0",
+    "description": "Timezone and schedule handler",
+    "main": "bot.js",
+    "author": "Sam McGahan",
+    "dependencies": {
+        "discord.io": "^2.5.3",
+        "winston": "^2.4.0"
+    }
+}
