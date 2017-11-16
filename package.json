@@ -9,7 +9,6 @@
     "author": "Sam McGahan",
     "dependencies": {
         "discord.io": "^2.5.3",
-        "newrelic": "^2.3.2",
         "winston": "^2.4.0"
     }
 }
