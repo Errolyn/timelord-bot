@@ -3,6 +3,8 @@ var logger = require('winston');
 var auth = process.env.TOKEN;
 const _ = require('underscore');
 
+logger.info("starting load");
+
 // Configure logger settings
 logger.remove(logger.transports.Console);
 logger.add(logger.transports.Console, {
@@ -24,7 +26,7 @@ bot.on('ready', function (evt) {
 var pingCount = 0;
 var timeZone = "unknown"; 
 var time = "unknown";
-var userObjArray = new Array()
+var userObjArray = new Array();
 
 
 String.prototype.capitalize = function() {
@@ -35,7 +37,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
     var currentUser = findUser(user);
-
+    
     if (message.substring(0, 1) == '!') {
         var args = message.substring(1).split(' ');
         var cmd = args[0];
@@ -158,12 +160,12 @@ var existingUser = function(currentUser){
 };
 
 var createUser = function(userName, timeZone){
-    var id = userObjArray.length
-    var userInfo = {id:id, user:userName, timeZone:timeZone, nextPlayTime:null}
+    var id = userObjArray.length;
+    var userInfo = {id:id, user:userName, timeZone:timeZone, nextPlayTime:null};
     userObjArray.push(userInfo);   
 };
 
 var findUser = function(userName){
    var results = _.findWhere(userObjArray, {user: userName});
    return results;
-}
+};
