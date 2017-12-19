@@ -3,6 +3,11 @@ var logger = require('winston');
 var auth = process.env.TOKEN;
 const _ = require('underscore');
 
+require('http').createServer((req, res) => {
+    res.end('hello');
+  })
+    .listen(process.env.PORT || 5050);
+
 logger.info("starting load");
 
 // Configure logger settings
