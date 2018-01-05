@@ -38,6 +38,11 @@ String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
+bot.on('disconnect', function(msg, code) {
+    if (code === 0) return console.error(msg);
+    bot.connect();
+});
+
 bot.on('message', function (user, userID, channelID, message, evt) {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
@@ -81,10 +86,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 break;
 
             case 'update':
-                bot.sendMessage({
-                    to: channelID,
-                    message: 'I am unable to update you right now.'
-                });
+                badCommand(channelID);
                 break;
 
             case 'time':
@@ -148,6 +150,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 });
 
 // Proccessing functions
+
 var badCommand = function(channelID){
     bot.sendMessage({
         to: channelID,
