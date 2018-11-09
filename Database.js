@@ -1,5 +1,3 @@
-// REMEMBER TO REMOVE THE PASSWORD AND USER BEFORE MERGING
-
 let mysql = require('mysql');
 
 let dbConnect = () => {
