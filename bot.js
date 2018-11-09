@@ -1,6 +1,7 @@
 var Discord = require('discord.io');
 var logger = require('winston');
 var auth = process.env.TOKEN;
+var Database = require('./Database');
 const _ = require('underscore');
 
 require('http').createServer((req, res) => {
@@ -31,7 +32,7 @@ bot.on('ready', function (evt) {
 var pingCount = 0;
 var timeZone = "unknown"; 
 var time = "unknown";
-var userObjArray = new Array();
+// var userObjArray = new Array();
 
 
 String.prototype.capitalize = function() {
@@ -43,12 +44,13 @@ bot.on('disconnect', function(msg, code) {
     bot.connect();
 });
 
-bot.on('message', function (user, userID, channelID, message, evt) {
+bot.on('message', function (discordUser, userID, channelID, message, evt) {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
-    var currentUser = findUser(user);
     var targetChannelIDNews = '512050051820945413'
-    
+    var currentUser = findUser(discordUser);
+    console.log(currentUser);
+
     if (message.substring(0, 1) == '!') {
         var args = message.substring(1).split(' ');
         var cmd = args[0];
@@ -62,7 +64,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 pingCount++
                 bot.sendMessage({
                     to: channelID,
-                    message: 'Pong! ' + user + ", I have been pinged " + pingCount + " times since I last took a nap."
+                    message: 'Pong! ' + discordUser + ", I have been pinged " + pingCount + " times since I last took a nap."
                 });
                 break;
 
@@ -74,8 +76,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                        message: "Your user already exists, use !update command to change your information "
                     });
                 }
-                else if (user){
-                    createUser(user, mod);
+                else if (discordUser){
+                    createUser(discordUser, mod, userID);
 
                     bot.sendMessage({
                         to: channelID,
@@ -101,7 +103,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     //add function find correct user's time and display it in the right time zone
                     bot.sendMessage({
                         to: channelID,
-                        message: user + " plans to play next at " + "unknown" 
+                        message: discordUser + " plans to play next at " + "unknown"
                     });
                 } else {
                     badCommand(channelID);
@@ -113,7 +115,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 if ((mod == "am") && (value)){
                     bot.sendMessage({
                         to: channelID,
-                        message: "Your user name is " + user + ". Your timezone is set to " + timeZone + ". You are planning to play next at " + time + "."
+                        message: "Your user name is " + discordUser + ". Your timezone is set to " + timeZone + ". You are planning to play next at " + time + "."
                     });
                 }
                 else if ((mod == "is") && (value)){
@@ -178,13 +180,16 @@ var existingUser = function(currentUser){
     }
 };
 
-var createUser = function(userName, timeZone){
-    var id = userObjArray.length;
-    var userInfo = {id:id, user:userName, timeZone:timeZone, nextPlayTime:null};
-    userObjArray.push(userInfo);   
+var createUser = function(userName, timeZone, userID){
+    var userInfo = { userID:userID, userName:userName, timeZone:timeZone, nextPlayTime:null, kudos:0 };
+    Database.createUser(userInfo);
 };
 
-var findUser = function(userName){
-   var results = _.findWhere(userObjArray, {user: userName});
-   return results;
+var findUser = function(discordUser){
+    console.log(discordUser);
+    let foundUser = Database.getUser(discordUser);
+    console.log('the found user is: ');
+    console.log(foundUser);
+   return foundUser;
 };
+
