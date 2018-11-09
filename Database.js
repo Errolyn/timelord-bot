@@ -1,47 +1,40 @@
 let mysql = require('mysql');
+var logger = require('winston');
 
 let dbConnect = () => {
-  return mysql.createConnection({ // connection object
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
+  return mysql.createConnection(process.env.JAWSDB_URL);
 }
 
 module.exports = {
   createUser(userInfo){
-    console.log(userInfo);
-    dbConnect().connect(function(err) {
+    let sql = 'INSERT INTO Users SET ?'
+    dbConnect().query(sql, userInfo, function (err, result, fields) {
+      logger.info("Connecting to DB");
       if (err) throw err;
-      console.log("Connected!");
-      let sql = 'INSERT INTO Users SET ?'
-      dbConnect().query(sql, userInfo, function (err, result, fields) {
-        if (err) throw err;
-        console.log(result);
-      }).end();
-    }).end();
+      logger.info("Connected to DB");
+      console.log(result);
+    })
   },
 
   getUser(userName){
     let sql = 'SELECT * FROM Users WHERE userName=?'
-    dbConnect().query(sql, userName, function (err, result, fields) {
+    logger.info("Connecting to DB")
+    dbConnect()
+    .query(sql, userName, function (err, result, fields) {
       if (err) throw err;
+      logger.info("Connected to DB");
       console.log('getUser results are: ')
       console.log(result);
       return result;
     })
+    .destroy()
   },
 
   updateUser(id, updates ){
-    dbConnect().connect(function(err) {
+    let sql = "UPDATE Users SET ${updates} WHERE id=${id} ";
+    dbConnect().query(sql, function (err, result) {
       if (err) throw err;
-      let sql = "UPDATE Users SET ${updates} WHERE id=${id} ";
-      dbConnect().query(sql, function (err, result) {
-        if (err) throw err;
-        console.log(result.affectedRows + " record(s) updated");
-      });
+      console.log(result.affectedRows + " record(s) updated");
     });
-    dbConnect().end();
   },
 }
