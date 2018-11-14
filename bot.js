@@ -149,7 +149,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 break;
             case 'news':
                 let userMessage = message.substring(1)
-                userMessage = userMessage.replace(/news/i, user + " posts:\n");
+                userMessage = userMessage.replace(/news/i, user + " posts:\n"); // TODO: condense this down into one regex match.
+                userMessage = userMessage.replace(/<@.*?> | <@.*?>|<@&.*?> | <@&.*?>/g, "");
                 bot.sendMessage({
                     to: targetChannelIDNews,
                     message: userMessage
