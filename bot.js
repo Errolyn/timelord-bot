@@ -47,6 +47,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
     var currentUser = findUser(user);
+    var targetChannelIDNews = '512050051820945413'
     
     if (message.substring(0, 1) == '!') {
         var args = message.substring(1).split(' ');
@@ -140,10 +141,21 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     "    ***find***  <userName>\n        *displays user's next planed play time in your timezone*\n" +
                     "**!who**\n" + 
                     "    ***am i***\n        *displays current known information about your user*\n" +
-                    "    ***is***  <userName>\n        *displays current known information about a specific user*\n"
+                    "    ***is***  <userName>\n        *displays current known information about a specific user*\n" +
+                    "**!news <messageToBeAddedToFeed>** \n" +
+                    "    *adds complete message to news feed channel*\n" 
                     
                 });
                 break;
+            case 'news':
+                let userMessage = message.substring(1)
+                userMessage = userMessage.replace(/news/i, user + " posts:\n"); // TODO: condense this down into one regex match.
+                userMessage = userMessage.replace(/<@.*?> | <@.*?>|<@&.*?> | <@&.*?>/g, "");
+                bot.sendMessage({
+                    to: targetChannelIDNews,
+                    message: userMessage
+                })
+            break;
             // Just add any case commands if you want to..
          }
      }
@@ -159,7 +171,6 @@ var badCommand = function(channelID){
 };
 
 var existingUser = function(currentUser){
-    console.log(currentUser);
     if (currentUser != undefined){
         return true
     } else {
