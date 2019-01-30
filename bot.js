@@ -46,7 +46,7 @@ bot.on('disconnect', function(msg, code) {
 bot.on('message', function (discordUser, userID, channelID, message, evt) {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
-    var targetChannelIDNews = '512050051820945413'
+    var targetChannelIDNews = process.env.NEWS_CHANNEL
     var currentUser = findUser(discordUser);
     console.log(currentUser);
 
