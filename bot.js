@@ -2,7 +2,6 @@ var Discord = require('discord.io');
 var logger = require('winston');
 var auth = process.env.TOKEN;
 var Database = require('./Database');
-const _ = require('underscore');
 
 require('http').createServer((req, res) => {
     res.end('hello');
@@ -56,7 +55,7 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
         var cmd = args[0];
         var mod = args[1];
         var value = args[2];
-       
+
         args = args.splice(1);
         switch(cmd.toLowerCase()) {
             // !ping
@@ -70,7 +69,7 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
 
             case 'register':
                 //add function to create user with timezone information
-                if (existingUser(currentUser)){
+                if (existingUser(currentUser.userName)){
                     bot.sendMessage({
                        to: channelID,
                        message: "Your user already exists, use !update command to change your information "
@@ -115,7 +114,7 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
                 if ((mod == "am") && (value)){
                     bot.sendMessage({
                         to: channelID,
-                        message: "Your user name is " + discordUser + ". Your timezone is set to " + timeZone + ". You are planning to play next at " + time + "."
+                        message: "Your user name is " + ( currentUser(discordUser) ? currentUser.userName : undefined) + ". Your timezone is set to " + "<timeZone>" + ". You are planning to play next at " + "<nextPlayTime>" + "."
                     });
                 }
                 else if ((mod == "is") && (value)){
@@ -185,11 +184,13 @@ var createUser = function(userName, timeZone, userID){
     Database.createUser(userInfo);
 };
 
-var findUser = function(discordUser){
-    console.log(discordUser);
-    let foundUser = Database.getUser(discordUser);
-    console.log('the found user is: ');
-    console.log(foundUser);
-   return foundUser;
+
+var currentUser = async function(discordUser) {
+    Database.getUser(discordUser)
+    .then(function(value) {
+        console.log('currentUser returned Value: ')
+        console.log(value);
+        return(value);
+    })
 };
 
