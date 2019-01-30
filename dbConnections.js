@@ -1,10 +1,10 @@
 let mysql = require('mysql');
 
 var db = mysql.createConnection({
-  host: "ol5tz0yvwp930510.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-  user: "c2dwcsup82olwfwh",
-  password: "apj6ewe5bklkxa8d",
-  database: "ns8wn2un545ig1ij"
+  host: process.env.DB_Host,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
 db.connect(function(err) {
