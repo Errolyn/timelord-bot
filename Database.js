@@ -21,14 +21,14 @@ module.exports = {
     dbConnect.query(sql, userName, function (err, result, fields) {
       if (err) throw err;
       logger.info("Connected to DB");
-      console.log('getUser results are: ')
-      console.log(result[0]);
+      // console.log('getUser results are: ')
+      // console.log(result[0]);
       return result[0];
     })
   },
 
   updateUser(id, updates ){
-    let sql = "UPDATE Users SET ${updates} WHERE id=${id} ";
+    let sql = `UPDATE Users SET ${updates} WHERE id=${id} `;
     dbConnect.query(sql, function (err, result) {
       if (err) throw err;
       console.log(result.affectedRows + " record(s) updated");

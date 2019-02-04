@@ -2,6 +2,7 @@ var Discord = require('discord.io');
 var logger = require('winston');
 var auth = process.env.TOKEN;
 var Database = require('./Database');
+var dbconnect = require('./dbconnect');
 
 require('http').createServer((req, res) => {
     res.end('hello');
