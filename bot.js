@@ -57,8 +57,14 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
         var mod = args[1];
         var value = args[2];
 
+        specialUser(discordUser).then(function(value){
+            console.log(`this is the value of ${value}`)
+            console.log(value)
+        })
+
         args = args.splice(1);
         switch(cmd.toLowerCase()) {
+
             // !ping
             case 'ping':
                 pingCount++
@@ -185,13 +191,16 @@ var createUser = function(userName, timeZone, userID){
     Database.createUser(userInfo);
 };
 
+var specialUser = function(discordUser){
+    return Database.findUser(discordUser)
+}
 
-var currentUser = async function(discordUser) {
-    Database.getUser(discordUser)
-    .then(function(value) {
-        console.log('currentUser returned Value: ')
-        console.log(value);
-        return(value);
-    })
-};
+// var currentUser = async function(discordUser) {
+//     // Database.getUser(discordUser)
+//     // .then(function(value) {
+//     //     console.log('currentUser returned Value: ')
+//     //     console.log(value);
+//     //     return(value);
+//     // })
+// };
 
