@@ -1,8 +1,8 @@
-var Discord = require('discord.io');
-var logger = require('winston');
-var auth = process.env.TOKEN;
-var Database = require('./Database');
-var dbconnect = require('./dbconnect');
+const Discord = require('discord.io');
+const logger = require('winston');
+const auth = process.env.TOKEN;
+const Database = require('./Database');
+// const dbconnect = require('./dbconnect');
 
 require('http').createServer((req, res) => {
     res.end('hello');
@@ -18,7 +18,7 @@ logger.add(logger.transports.Console, {
 });
 logger.level = 'debug';
 // Initialize Discord Bot
-var bot = new Discord.Client({
+let bot = new Discord.Client({
    token: auth,
    autorun: true
 });
@@ -29,10 +29,9 @@ bot.on('ready', function (evt) {
 });
 
 //this is all data that should live in DB
-var pingCount = 0;
-var timeZone = "unknown"; 
-var time = "unknown";
-// var userObjArray = new Array();
+let pingCount = 0;
+let timeZone = "unknown"; 
+let time = "unknown";
 
 
 String.prototype.capitalize = function() {
@@ -47,6 +46,10 @@ bot.on('disconnect', function(msg, code) {
 bot.on('message', function (discordUser, userID, channelID, message, evt) {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
+<<<<<<< HEAD
+=======
+
+>>>>>>> Registering user works
     var targetChannelIDNews = process.env.NEWS_CHANNEL
     var currentUser = findUser(discordUser);
     console.log(currentUser);
@@ -56,11 +59,6 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
         var cmd = args[0];
         var mod = args[1];
         var value = args[2];
-
-        specialUser(discordUser).then(function(value){
-            console.log(`this is the value of ${value}`)
-            console.log(value)
-        })
 
         args = args.splice(1);
         switch(cmd.toLowerCase()) {
@@ -76,22 +74,28 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
 
             case 'register':
                 //add function to create user with timezone information
-                if (existingUser(currentUser.userName)){
-                    bot.sendMessage({
-                       to: channelID,
-                       message: "Your user already exists, use !update command to change your information "
-                    });
-                }
-                else if (discordUser){
-                    createUser(discordUser, mod, userID);
 
-                    bot.sendMessage({
-                        to: channelID,
-                        message: "I have registered your user"
-                    });
-                } else {
-                    badCommand(channelID);
-                }
+                isExistingUser(discordUser).then((userDBstatus) => {
+                    if ( userDBstatus ){
+                        console.log('The user was found')
+                        console.log(userDBstatus)
+                        bot.sendMessage({
+                           to: channelID,
+                           message: "Your user already exists, use !update command to change your information "
+                        });
+                    }
+                    else if (discordUser){
+                        console.log('The user was not found')
+                        createUser(discordUser, mod, userID);
+    
+                        bot.sendMessage({
+                            to: channelID,
+                            message: "I have registered your user"
+                        });
+                    } else {
+                        badCommand(channelID);
+                    }
+                })
                 break;
 
             case 'update':
@@ -163,44 +167,48 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
                     to: targetChannelIDNews,
                     message: userMessage
                 })
-            break;
+                break;
+            case 'kudos':
+                console.log('kudos')
+                break;
+
             // Just add any case commands if you want to..
          }
      }
 });
 
-// Proccessing functions
 
-var badCommand = function(channelID){
+function badCommand(channelID){
     bot.sendMessage({
         to: channelID,
         message: "I didn't understand that. Try !help learn about available commands."
     });
 };
 
-var existingUser = function(currentUser){
-    if (currentUser != undefined){
-        return true
-    } else {
-        return false
-    }
-};
+// 
 
-var createUser = function(userName, timeZone, userID){
+function isExistingUser(discordUser){
+    return findCurrentUser(discordUser)
+        .then(function(value){
+            // console.log(value)
+            console.log(value.userID)
+            if (value === 'undefined'){
+                return false
+            }
+            return true
+    })
+        .catch(err => { 
+            console.log('Caught:', err.message);
+    });
+}
+
+
+// interacts with DB
+function createUser(userName, timeZone, userID){
     var userInfo = { userID:userID, userName:userName, timeZone:timeZone, nextPlayTime:null, kudos:0 };
     Database.createUser(userInfo);
 };
 
-var specialUser = function(discordUser){
+function findCurrentUser(discordUser){
     return Database.findUser(discordUser)
 }
-
-// var currentUser = async function(discordUser) {
-//     // Database.getUser(discordUser)
-//     // .then(function(value) {
-//     //     console.log('currentUser returned Value: ')
-//     //     console.log(value);
-//     //     return(value);
-//     // })
-// };
-
