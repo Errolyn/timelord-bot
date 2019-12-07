@@ -1,6 +1,6 @@
 # timelord-bot
 
-To start the timelord bot localy you will need to set the following env variables:
+To start the timelord bot locally you will need to set the following env variables:
 
 TOKEN='' *Discords bot token*
 NEWS_CHANNEL='' *Channel number for whichever room you want a news feed in.*
