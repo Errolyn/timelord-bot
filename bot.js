@@ -48,7 +48,9 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
     // It will listen for messages that will start with `!`
 
     var targetChannelIDNews = process.env.NEWS_CHANNEL
-    var currentUser = findUser(discordUser);
+    var currentUser = new Promise(function(resolve, reject){
+
+    });
     console.log(currentUser);
 
     if (message.substring(0, 1) == '!') {
@@ -182,8 +184,6 @@ function badCommand(channelID){
     });
 };
 
-// 
-
 function isExistingUser(discordUser){
     return findCurrentUser(discordUser)
         .then(function(value){
@@ -209,3 +209,13 @@ function createUser(userName, timeZone, userID){
 function findCurrentUser(discordUser){
     return Database.findUser(discordUser)
 }
+
+
+// var currentUser = async function(discordUser) {
+//     // Database.getUser(discordUser)
+//     // .then(function(value) {
+//     //     console.log('currentUser returned Value: ')
+//     //     console.log(value);
+//     //     return(value);
+//     // })
+// };
