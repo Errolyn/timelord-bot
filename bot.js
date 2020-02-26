@@ -46,10 +46,7 @@ bot.on('disconnect', function(msg, code) {
 bot.on('message', function (discordUser, userID, channelID, message, evt) {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
-<<<<<<< HEAD
-=======
 
->>>>>>> Registering user works
     var targetChannelIDNews = process.env.NEWS_CHANNEL
     var currentUser = findUser(discordUser);
     console.log(currentUser);
@@ -62,10 +59,14 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
 
         args = args.splice(1);
         switch(cmd.toLowerCase()) {
+
+            // !ping
             case 'ping':
                 pingCount++
-                let sendMessage = 'Pong! ' + discordUser + ", I have been pinged " + pingCount + " times since I last took a nap."
-                sendDiscordMessage(channelID, sendMessage)
+                bot.sendMessage({
+                    to: channelID,
+                    message: 'Pong! ' + discordUser + ", I have been pinged " + pingCount + " times since I last took a nap."
+                });
                 break;
 
             case 'register':
@@ -73,14 +74,21 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
 
                 isExistingUser(discordUser).then((userDBstatus) => {
                     if ( userDBstatus ){
-                        logger.ok(discordUser + 'was looked up.');
-                        let sendMessage = "Your user already exists, use !update command to change your information."
-                        sendDiscordMessage(channelID, sendMessage)
+                        console.log('The user was found')
+                        console.log(userDBstatus)
+                        bot.sendMessage({
+                           to: channelID,
+                           message: "Your user already exists, use !update command to change your information "
+                        });
                     }
                     else if (discordUser){
-                        let sendMessage = "I have registered you under your discord user id" + userID + " and username " + discordUser + "."
+                        console.log('The user was not found')
                         createUser(discordUser, mod, userID);
-                        sendDiscordMessage(channelID, sendMessage)
+    
+                        bot.sendMessage({
+                            to: channelID,
+                            message: "I have registered your user"
+                        });
                     } else {
                         badCommand(channelID);
                     }
@@ -93,12 +101,17 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
 
             case 'time':
                 if (mod == 'set'){
-                    let sendMessage = 'I set your next playtime to ' + value
-                    sendDiscordMessage(channelID, sendMessage)
-                    } 
+                    //add function to save time
+                    bot.sendMessage({
+                        to: channelID,
+                        message: 'I set your next playtime to ' + value
+                    }); } 
                 else if (mod == 'find'){
-                    let sendMessage = discordUser + " plans to play next at " + "unknown"
-                    sendDiscordMessage(channelID, sendMessage)
+                    //add function find correct user's time and display it in the right time zone
+                    bot.sendMessage({
+                        to: channelID,
+                        message: discordUser + " plans to play next at " + "unknown"
+                    });
                 } else {
                     badCommand(channelID);
                 }
@@ -107,13 +120,16 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
             case 'who':
 
                 if ((mod == "am") && (value)){
-                    let sendMessage = "Your user name is " + ( currentUser(discordUser) ? currentUser.userName : undefined) + ". Your timezone is set to " + "<timeZone>" + ". You are planning to play next at " + "<nextPlayTime>" + "."
-                    sendDiscordMessage(channelID, sendMessage)
+                    bot.sendMessage({
+                        to: channelID,
+                        message: "Your user name is " + ( currentUser(discordUser) ? currentUser.userName : undefined) + ". Your timezone is set to " + "<timeZone>" + ". You are planning to play next at " + "<nextPlayTime>" + "."
+                    });
                 }
                 else if ((mod == "is") && (value)){
-                    let sendMessage = value.capitalize() + " lives in the " + timeZone + " timezone. They will be on next at " + time + "."
-                    sendDiscordMessage(channelID, sendMessage)
-                    
+                    bot.sendMessage({
+                        to: channelID,
+                        message: value.capitalize() + " lives in the " + timeZone + " timezone. They will be on next at " + time + "."
+                    });
                 } else {
                     badCommand(channelID);
                 }
@@ -137,13 +153,17 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
                     "    ***is***  <userName>\n        *displays current known information about a specific user*\n" +
                     "**!news <messageToBeAddedToFeed>** \n" +
                     "    *adds complete message to news feed channel*\n" 
+                    
                 });
                 break;
             case 'news':
                 let userMessage = message.substring(1)
-                userMessage = userMessage.replace(/news/i, discordUser + " posts:\n");
+                userMessage = userMessage.replace(/news/i, user + " posts:\n"); // TODO: condense this down into one regex match.
                 userMessage = userMessage.replace(/<@.*?> | <@.*?>|<@&.*?> | <@&.*?>/g, "");
-                sendDiscordMessage(targetChannelIDNews, userMessage)
+                bot.sendMessage({
+                    to: targetChannelIDNews,
+                    message: userMessage
+                })
                 break;
             case 'kudos':
                 console.log('kudos')
@@ -154,14 +174,6 @@ bot.on('message', function (discordUser, userID, channelID, message, evt) {
      }
 });
 
-// 
-
-function sendDiscordMessage( channelID, message ){
-    bot.sendMessage({
-        to: channelID,
-        message: message,
-    });
-}
 
 function badCommand(channelID){
     bot.sendMessage({
@@ -175,6 +187,7 @@ function badCommand(channelID){
 function isExistingUser(discordUser){
     return findCurrentUser(discordUser)
         .then(function(value){
+            // console.log(value)
             console.log(value.userID)
             if (value === 'undefined'){
                 return false
@@ -182,15 +195,13 @@ function isExistingUser(discordUser){
             return true
     })
         .catch(err => { 
-            logger.error('Caught:', err.message);
             console.log('Caught:', err.message);
     });
 }
 
 
-// All functions directly interacting with DB:
+// interacts with DB
 function createUser(userName, timeZone, userID){
-    logger.info(userName + 'was added to the database.');
     var userInfo = { userID:userID, userName:userName, timeZone:timeZone, nextPlayTime:null, kudos:0 };
     Database.createUser(userInfo);
 };
