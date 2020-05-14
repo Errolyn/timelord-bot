@@ -6,7 +6,7 @@
     "author": "Errolyn",
     "license": "MIT",
     "scripts": {
-      "start": "node index.js"
+      "start":"node index.js"
     },
     "dependencies": {
       "eris": "abalabahaha/eris#dev"

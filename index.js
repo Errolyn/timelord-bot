@@ -1,7 +1,9 @@
-var Eris = require('eris')
+"use strict";
 
-let pingCount = 0
-const newsChannel = process.env.NEWS_CHANNEL
+var Eris = require('eris');
+
+let pingCount = 0;
+const newsChannel = process.env.NEWS_CHANNEL;
 
 const bot = new Eris.CommandClient(process.env.TOKEN, {}, {
     description: "A helpful server bot",
@@ -20,8 +22,8 @@ bot.on("error", err => {
 bot.registerCommand(
     "ping", 
     () => {
-        incPing()
-        return("I have been pinged " + pingCount + " times since I last took a nap.")
+        pingCount++
+        return "I have been pinged " + pingCount + " times since I last took a nap.";
     },
     {
         description: "Pong!",
@@ -37,7 +39,7 @@ bot.registerCommand(
         const contentForNewsChannel = stripContent(msg.content);
 
 
-        let attachments = getAttachments(msg.attachments);
+        let attachments = formatAttachments(msg.attachments);
         let content = `${userName} posted in ${messageChannelName}: \n${contentForNewsChannel} \n${attachments}`;
 
         createMessage(newsChannel, content, attachments);
@@ -46,15 +48,11 @@ bot.registerCommand(
         description: "News feed",
         fullDescription: "Use this command to add content to #news-feed."
     }
-)
+);
 
 bot.connect();
 
 // helper functions
-
-function incPing(){
-    pingCount++
-}
 
 function stripContent(messageContent){
     const stringParts = messageContent.split(' ');
@@ -65,15 +63,10 @@ function stripContent(messageContent){
 }
 
 function createMessage(channel, content){
-    bot.createMessage(channel,{
-        content: content,
-    })
+    bot.createMessage(channel,{ content });
 }
 
-function getAttachments(attachments){
-    const attachmentString = []
-    if(attachments !== undefined){
-        attachments.map( (attachment) => { attachmentString.push(`\n ${attachment.url}`) })
-    }
-    return(attachmentString.join(''))
+function formatAttachments(attachments = []){
+    return attachments.map(attachment => attachment.url)
+        .join('\n');
 }
