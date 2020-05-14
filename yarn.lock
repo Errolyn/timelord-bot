@@ -2,9 +2,10 @@
 # yarn lockfile v1
 
 
-eris@abalabahaha/eris#dev:
+eris@^0.13.1:
   version "0.13.1"
-  resolved "https://codeload.github.com/abalabahaha/eris/tar.gz/4ec345514fec9a17917272b178f4ff16ed53be37"
+  resolved "https://registry.yarnpkg.com/eris/-/eris-0.13.1.tgz#cdf6af407faafefee6242b7785297db9e14d484c"
+  integrity sha512-c/059ie4W/NfPufFCsEFdgbvEVjEpcttAZijQ33P+3EemCMUfuehp1qFq1WcrAHYU+y0lCOqQDw2YdkGjgYdUQ==
   dependencies:
     ws "^7.2.1"
   optionalDependencies:

@@ -1,15 +1,14 @@
 {
-    "name": "time-lord-bot",
-    "version": "0.0.1",
-    "description": "A discord bot",
-    "main": "index.js",
-    "author": "Errolyn",
-    "license": "MIT",
-    "scripts": {
-      "start":"node index.js"
-    },
-    "dependencies": {
-      "eris": "abalabahaha/eris#dev"
-    }
+  "name": "time-lord-bot",
+  "version": "0.0.1",
+  "description": "A discord bot",
+  "main": "index.js",
+  "author": "Errolyn",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "eris": "^0.13.1"
   }
-  
+}
