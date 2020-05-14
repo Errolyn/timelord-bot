@@ -5,9 +5,9 @@ To start the timelord bot locally you will need to set the following env variabl
 - TOKEN='' *Discords bot token*
 - NEWS_CHANNEL='' *Channel number for whichever room you want a news feed in.*
 
-You will need to install dependentcies `npm install`
+You will need to install dependentcies `yarn install`
 
-Install node-foreman `$ npm install -g foreman` *You don't have to use node-foreman if you export your environment variables another way, in that case you can use `npm start` and skip installing node-foreman*
+Add envs to a .env file and run `source .env`
 
-To run: `nf start`
+To run: `yarn start`
 
