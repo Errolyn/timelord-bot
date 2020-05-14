@@ -5,6 +5,13 @@ var Eris = require('eris');
 let pingCount = 0;
 const newsChannel = process.env.NEWS_CHANNEL;
 
+// Heroku requires a port to be bound
+require('http').createServer((req, res) => {
+    res.end('hello');
+  })
+    .listen(process.env.PORT || 5050);
+
+
 const bot = new Eris.CommandClient(process.env.TOKEN, {}, {
     description: "A helpful server bot",
     owner: "Errolyn",
