@@ -57,6 +57,34 @@ bot.registerCommand(
     }
 );
 
+bot.registerCommand(
+    "createPoll",
+    (msg, args) => {
+
+        const emojiSet = args[0];
+        let optionSet = [];
+        let optionBuilder = [];
+
+        args.shift(); // Removes the first option that determins what emojis to use
+        args.push('99'); // Completely arbitrary number chosen to indicate the end of all the options. This is a bad idea and I need to figure out a different way to break up the options later.
+
+        args.forEach( arg => {
+            if ((Number(arg)) && (optionBuilder.length > 1) ) {
+                optionSet.push(optionBuilder.join(" "), '\n');
+                optionBuilder = [];
+            }
+            optionBuilder.push(arg);
+        })
+        console.log(optionSet);
+
+        
+    },
+    {
+        description: "Creat a poll",
+        fullDescription: "Use this command to create a poll in any channel."
+    }
+);
+
 bot.connect();
 
 // helper functions
