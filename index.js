@@ -62,26 +62,55 @@ bot.registerCommand(
     (msg, args) => {
 
         const emojiSet = args[0];
+        let pollTitle = [];
         let optionSet = [];
         let optionBuilder = [];
+        let argCount = 0;
 
         args.shift(); // Removes the first option that determins what emojis to use
         args.push('99'); // Completely arbitrary number chosen to indicate the end of all the options. This is a bad idea and I need to figure out a different way to break up the options later.
 
-        args.forEach( arg => {
-            if ((Number(arg)) && (optionBuilder.length > 1) ) {
-                optionSet.push(optionBuilder.join(" "), '\n');
-                optionBuilder = [];
+        for (let arg of args){
+            argCount++
+            if (arg === "Description:" ){
+                break;
             }
-            optionBuilder.push(arg);
-        })
-        console.log(optionSet);
+            pollTitle.push(arg);
+        }
 
-        
+        args.splice(0, (argCount)); // Removes the Title
+
+        args.forEach( arg => { // Handles formating the discription
+            if ((Number(arg)) && (optionBuilder.length > 1) ) {
+                optionSet.push(optionBuilder.join(' '), '\n');
+                optionBuilder = [];
+            } 
+            else if (!(Number(arg))){ // This only adds the text without numbers
+                optionBuilder.push(arg);
+            };
+            
+        });
+
+        console.log(optionSet);
+        bot.createMessage( msg.channel.id, {
+
+            embed: {
+                title: pollTitle.join(' '), // Title of the embed
+                description: optionSet.join(' '),
+                author: { // Author property
+                    name: msg.author.username,
+                    icon_url: msg.author.avatarURL
+                },
+                color: 0x660066, // Color, either in hex (show), or a base-10 integer
+                footer: { // Footer text
+                    text: "Please report errors to Errolyn"
+                }
+            }
+        })
     },
     {
         description: "Creat a poll",
-        fullDescription: "Use this command to create a poll in any channel."
+        fullDescription: "Use this command to create a poll in any channel.\n Example:\n !createPoll Title: What day should we watch a movie? Description: This is a description of the poll. 1 :one: Monday 2 :two: Tuesday"
     }
 );
 
