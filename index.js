@@ -127,7 +127,7 @@ function rollDecider(command){
     const pulledApart = commandCleaned.split('d');
     const amount = pulledApart[0];
 
-    if (amount === 0 || isNaN(amount)) {
+    if (Number(amount) <= 0 || isNaN(amount)) {
         throw 'Must roll at least one dice'
     }
 
