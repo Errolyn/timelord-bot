@@ -149,20 +149,20 @@ function rollDecider(command){
         if (sides <= 1) {
             throw 'Dice must have more than one side';
         }
-        return rollDice(amount, sides, reroll) + Number(modifier);
+        return `${amount} d${sides} + ${modifier} were rolled to get ${rollDice(amount, sides, reroll) + Number(modifier)}`;
     } else if (pulledApart[1].includes('-')) {
         [sides, modifier] = pulledApart[1].split('-');
         if (sides <= 1) {
             throw 'Dice must have more than one side';
         }
-        return rollDice(amount, sides, reroll) - Number(modifier);
+        return `${amount} d${sides} + ${modifier} were rolled to get ${rollDice(amount, sides, reroll) - Number(modifier)}`;
     } else {
         sides = pulledApart[1];
         
         if (sides <= 1) {
             throw 'Dice must have more than one side';
         }
-        return rollDice(amount, sides, reroll);
+        return `${amount} d${sides} were rolled to get ${rollDice(amount, sides, reroll)}`;
     }
 }
 
