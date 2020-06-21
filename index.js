@@ -60,7 +60,11 @@ bot.registerCommand(
 bot.registerCommand(
     "roll",
     (msg) => {
-        console.log(rollDecider(stripContent(msg.content)));
+        try {
+            rollDecider(stripContent(msg.content));
+        } catch (err) {
+            return err
+        }
         return rollDecider(stripContent(msg.content));
     },
     {
@@ -91,27 +95,73 @@ function formatAttachments(attachments = []){
 }
 
 function rollDecider(command){
+    const commandArray = command.toLowerCase().split('');
+    const allowableCharacters = ['1','2','3','4','5','6','7','8','9','0','d','r',' ','+','-'];
+    const commandCharacters = ['d','r','+','-']
 
-    const commandCleaned = command.toLowerCase().split(' ').join('').split('r').join(''); // removes spaces and Rs
-    
-    const pulledApart = commandCleaned.split('d');
-    const amount = pulledApart[0];
+    commandCharacters.forEach( character => {
+        let tempIndex = commandArray.indexOf(character);
+        if ( tempIndex > 0 ){
+            if ( commandArray.indexOf(character, (tempIndex + 1)) > 0 ) {
+                throw 'You can have one dice, modifier, or operator at a time'
+            }
+        }
+        if ((character === 'r') && (tempIndex != -1) && ((tempIndex + 1) < (commandArray.length))) {
+            throw '"r" should only be at the end of your command'
+        }
+    })
+
+    commandArray.forEach( character => {
+        if ( !allowableCharacters.includes(character) ){
+            throw 'Please remove invalid characters'
+        }
+    })
+
+    const commandCleaned = command.toLowerCase().split(' ').join('').split('r').join(''); // removes spaces and Rs 
+
     let reroll = false;
-
     if (command.toLowerCase().includes('r')){
         reroll = true;
     }
 
-    
+    const pulledApart = commandCleaned.split('d');
+    const amount = pulledApart[0];
+
+    if (amount === 0 || isNaN(amount)) {
+        throw 'Must roll at least one dice'
+    }
+
+    if (amount > 100) {
+        throw 'You do not need that many dice'
+    }
+
     let sides, modifier;
+    if (pulledApart[1] === undefined){
+        throw 'You must have a dice declared';
+    }
+
+    if ((pulledApart[1].includes('+')) && (pulledApart[1].includes('-'))){
+        throw 'You may only have one modifier or operator';
+    };
+
     if (pulledApart[1].includes('+')){
         [sides, modifier] = pulledApart[1].split('+');
+        if (sides <= 1) {
+            throw 'Dice must have more than one side';
+        }
         return rollDice(amount, sides, reroll) + Number(modifier);
     } else if (pulledApart[1].includes('-')) {
         [sides, modifier] = pulledApart[1].split('-');
+        if (sides <= 1) {
+            throw 'Dice must have more than one side';
+        }
         return rollDice(amount, sides, reroll) - Number(modifier);
     } else {
         sides = pulledApart[1];
+        
+        if (sides <= 1) {
+            throw 'Dice must have more than one side';
+        }
         return rollDice(amount, sides, reroll);
     }
 }
