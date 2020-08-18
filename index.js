@@ -22,10 +22,12 @@ bot.on("ready", () => {
     console.log("Ready!");  
 });
 
+
 bot.on("error", err => {
-    console.log(err);
+    console.error(err);
 });
 
+// Command creation
 bot.registerCommand(
     "ping", 
     () => {
@@ -41,10 +43,9 @@ bot.registerCommand(
 bot.registerCommand(
     "news", 
     (msg) => {
-        const userName = msg.author.username;
+        const userName = msg.member.nick;
         const messageChannelName = msg.channel.name;
         const contentForNewsChannel = stripContent(msg.content);
-
 
         let attachments = formatAttachments(msg.attachments);
         let content = `${userName} posted in ${messageChannelName}: \n${contentForNewsChannel} \n${attachments}`;
@@ -187,3 +188,4 @@ function rollDice(amount, sides, reroll){
     }
     return diceTotal;
 }
+
