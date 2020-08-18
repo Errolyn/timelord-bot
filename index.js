@@ -41,10 +41,9 @@ bot.registerCommand(
 bot.registerCommand(
     "news", 
     (msg) => {
-        const userName = msg.author.username;
+        const userName = msg.member.nick ? msg.member.nick : msg.author.username;
         const messageChannelName = msg.channel.name;
         const contentForNewsChannel = stripContent(msg.content);
-
 
         let attachments = formatAttachments(msg.attachments);
         let content = `${userName} posted in ${messageChannelName}: \n${contentForNewsChannel} \n${attachments}`;
