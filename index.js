@@ -53,7 +53,7 @@ bot.registerCommand(
             userName = msg.author.username;
             messageChannelName = 'a DM'
         }
-
+      
         let attachments = formatAttachments(msg.attachments);
         let content = `${userName} posted in ${messageChannelName}: \n${contentForNewsChannel} \n${attachments}`;
 
