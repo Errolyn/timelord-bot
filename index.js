@@ -3,7 +3,7 @@
 var Eris = require('eris');
 
 let pingCount = 0;
-const newsChannel = process.env.NEWS_CHANNEL;
+
 
 // Heroku requires a port to be bound
 require('http').createServer((req, res) => {
@@ -41,10 +41,19 @@ bot.registerCommand(
 bot.registerCommand(
     "news", 
     (msg) => {
-        const userName = msg.member.nick ? msg.member.nick : msg.author.username;
-        const messageChannelName = msg.channel.name;
+        const newsChannel = process.env.NEWS_CHANNEL;
         const contentForNewsChannel = stripContent(msg.content);
 
+        let userName = 'unknown';
+        let messageChannelName = 'unknown';
+        if (msg.channel.type == 0){
+            userName = msg.member.nick ? msg.member.nick : msg.author.username;
+            messageChannelName = msg.channel.name;
+        } else if (msg.channel.type == 1) {
+            userName = msg.author.username;
+            messageChannelName = 'a DM'
+        }
+      
         let attachments = formatAttachments(msg.attachments);
         let content = `${userName} posted in ${messageChannelName}: \n${contentForNewsChannel} \n${attachments}`;
 
