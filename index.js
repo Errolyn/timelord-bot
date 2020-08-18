@@ -1,7 +1,6 @@
 "use strict";
 
 var Eris = require('eris');
-
 let pingCount = 0;
 
 
@@ -24,6 +23,22 @@ bot.on("ready", () => {
 
 bot.on("error", err => {
     console.log(err);
+});
+
+bot.on("guildMemberAdd",(guild, member) =>{
+    let userName = member.username
+    let cocChannel = process.env.COC_CHANNEL_ID
+    let serverName = guild.name
+    bot.getDMChannel(member.id).then(
+        channel => {
+            try{
+                return bot.createMessage(channel.id, `Hi ${userName}, welcome to **${serverName}**! When you have a moment check out our <#${cocChannel}> and once you have accepted it we will give you access to the rest of the server.`);
+            } catch(err) {
+                return err.toString();
+            }
+                
+        }
+    );
 });
 
 bot.registerCommand(
