@@ -3,13 +3,11 @@
 var Eris = require('eris');
 let pingCount = 0;
 
-
 // Heroku requires a port to be bound
 require('http').createServer((req, res) => {
     res.end('hello');
   })
     .listen(process.env.PORT || 5050);
-
 
 const bot = new Eris.CommandClient(process.env.TOKEN, {}, {
     description: "A helpful server bot",
@@ -25,19 +23,20 @@ bot.on("error", err => {
     console.log(err);
 });
 
-bot.on("guildMemberAdd",(guild, member) =>{
-    let userName = member.username
-    let cocChannel = process.env.COC_CHANNEL_ID
-    let serverName = guild.name
-    bot.getDMChannel(member.id).then(
-        channel => {
-            bot.createMessage(
-                channel.id, 
-                `Hi ${userName}, welcome to **${serverName}**! When you have a moment check out our <#${cocChannel}> and once you have accepted it we will give you access to the rest of the server.`
-            );       
-        }
-    );
-});
+let cocChannel = process.env.COC_CHANNEL_ID;
+if (cocChannel){
+    console.log("method bound");
+    bot.on("guildMemberAdd", async (guild, member) =>{
+        let userName = member.username;
+        let serverName = guild.name;
+        let channel = await bot.getDMChannel(member.id);
+        
+        bot.createMessage(
+            channel.id, 
+            `Hi ${userName}, welcome to **${serverName}**! When you have a moment check out our <#${cocChannel}> and once you have accepted it we will give you access to the rest of the server.`
+        );        
+    });
+};
 
 bot.registerCommand(
     "ping", 
