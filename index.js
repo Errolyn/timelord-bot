@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
-var Eris = require("eris");
+var Eris = require('eris');
 var pingCount = 0;
 
 // Heroku requires a port to be bound
-require("http")
+require('http')
   .createServer((_, res) => {
-    res.end("hello");
+    res.end('hello');
   })
   .listen(process.env.PORT || 5050);
 
@@ -14,23 +14,23 @@ const bot = new Eris.CommandClient(
   process.env.TOKEN,
   {},
   {
-    description: "A helpful server bot",
-    owner: "Errolyn",
-    prefix: "!",
+    description: 'A helpful server bot',
+    owner: 'Errolyn',
+    prefix: '!',
   },
 );
 
-bot.on("ready", () => {
-  console.log("Ready!");
+bot.on('ready', () => {
+  console.log('Ready!');
 });
 
-bot.on("error", (err) => {
+bot.on('error', (err) => {
   console.log(err);
 });
 
 let cocChannel = process.env.COC_CHANNEL_ID;
 if (cocChannel) {
-  bot.on("guildMemberAdd", async (guild, member) => {
+  bot.on('guildMemberAdd', async (guild, member) => {
     let userName = member.username;
     let serverName = guild.name;
     let channel = await bot.getDMChannel(member.id);
@@ -43,31 +43,31 @@ if (cocChannel) {
 }
 
 bot.registerCommand(
-  "ping",
+  'ping',
   () => {
     pingCount++;
-    return "I have been pinged " + pingCount + " times since I last took a nap.";
+    return 'I have been pinged ' + pingCount + ' times since I last took a nap.';
   },
   {
-    description: "Pong!",
-    fullDescription: "Used to see if the bot is responding.",
+    description: 'Pong!',
+    fullDescription: 'Used to see if the bot is responding.',
   },
 );
 
 bot.registerCommand(
-  "news",
+  'news',
   (msg) => {
     const newsChannel = process.env.NEWS_CHANNEL;
     const contentForNewsChannel = stripContent(msg.content);
 
-    let userName = "unknown";
-    let messageChannelName = "unknown";
+    let userName = 'unknown';
+    let messageChannelName = 'unknown';
     if (msg.channel.type == 0) {
       userName = msg.member.nick ? msg.member.nick : msg.author.username;
       messageChannelName = msg.channel.name;
     } else if (msg.channel.type == 1) {
       userName = msg.author.username;
-      messageChannelName = "a DM";
+      messageChannelName = 'a DM';
     }
 
     let attachments = formatAttachments(msg.attachments);
@@ -76,13 +76,13 @@ bot.registerCommand(
     createMessage(newsChannel, content, attachments);
   },
   {
-    description: "News feed",
-    fullDescription: "Use this command to add content to #news-feed.",
+    description: 'News feed',
+    fullDescription: 'Use this command to add content to #news-feed.',
   },
 );
 
 bot.registerCommand(
-  "roll",
+  'roll',
   (msg) => {
     try {
       return rollDecider(stripContent(msg.content));
@@ -91,22 +91,22 @@ bot.registerCommand(
     }
   },
   {
-    description: "Rolls Dice and outputs value",
+    description: 'Rolls Dice and outputs value',
     fullDescription:
-      "Use this command with typical dice notation `amount d sides + modifier` add an `r` at the end for rerolling 1s e.g. !roll 2d4 or 5d6+4 or 2d20+2r ",
+      'Use this command with typical dice notation `amount d sides + modifier` add an `r` at the end for rerolling 1s e.g. !roll 2d4 or 5d6+4 or 2d20+2r ',
   },
 );
 
 bot.registerCommand(
-  "acceptcoc",
+  'acceptcoc',
   (msg) => {
     const userID = msg.member.id;
     const messageMods = `<@${userID}> has accepted the Code of Conduct.`;
     const messageMember =
-      "Thanks for accepting the Code of Conduct, a mod will get you access to the wider server soon!";
+      'Thanks for accepting the Code of Conduct, a mod will get you access to the wider server soon!';
     const adminChannel = process.env.ADMIN_CHANNEL_ID;
     const guildID = msg.channel.guild.id;
-    const reason = "member accepts the Code of Conduct";
+    const reason = 'member accepts the Code of Conduct';
     const cocRole = process.env.COC_ROLE_ID;
 
     if (adminChannel) {
@@ -118,8 +118,8 @@ bot.registerCommand(
     createMessage(msg.channel.id, messageMember);
   },
   {
-    description: "Accepts our discords Code of Conduct",
-    fullDescription: "Pings mods and applies the COC role if configured.",
+    description: 'Accepts our discords Code of Conduct',
+    fullDescription: 'Pings mods and applies the COC role if configured.',
   },
 );
 
@@ -128,10 +128,10 @@ bot.connect();
 // helper functions
 
 function stripContent(messageContent) {
-  const stringParts = messageContent.split(" ");
+  const stringParts = messageContent.split(' ');
   stringParts.shift();
 
-  const userPost = stringParts.join(" ");
+  const userPost = stringParts.join(' ');
   return userPost;
 }
 
@@ -140,33 +140,33 @@ function createMessage(channel, content) {
 }
 
 function formatAttachments(attachments = []) {
-  return attachments.map((attachment) => attachment.url).join("\n");
+  return attachments.map((attachment) => attachment.url).join('\n');
 }
 
 function rollDecider(command) {
-  const commandArray = command.toLowerCase().split("");
+  const commandArray = command.toLowerCase().split('');
   const allowableCharacters = [
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "0",
-    "d",
-    "r",
-    " ",
-    "+",
-    "-",
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '0',
+    'd',
+    'r',
+    ' ',
+    '+',
+    '-',
   ];
-  const commandCharacters = ["d", "r", "+", "-"];
+  const commandCharacters = ['d', 'r', '+', '-'];
 
   commandArray.forEach((character) => {
     if (!allowableCharacters.includes(character)) {
-      throw new Error("Please remove invalid characters");
+      throw new Error('Please remove invalid characters');
     }
   });
 
@@ -174,54 +174,54 @@ function rollDecider(command) {
     let tempIndex = commandArray.indexOf(character);
     if (tempIndex > 0) {
       if (commandArray.indexOf(character, tempIndex + 1) > 0) {
-        throw new Error("You can have one dice, modifier, or operator at a time");
+        throw new Error('You can have one dice, modifier, or operator at a time');
       }
     }
-    if (character === "r" && tempIndex != -1 && tempIndex + 1 < commandArray.length) {
+    if (character === 'r' && tempIndex != -1 && tempIndex + 1 < commandArray.length) {
       throw new Error('"r" should only be at the end of your command');
     }
   });
 
-  const commandCleaned = command.toLowerCase().split(" ").join("").split("r").join(""); // removes spaces and Rs
+  const commandCleaned = command.toLowerCase().split(' ').join('').split('r').join(''); // removes spaces and Rs
 
-  const reroll = command.toLowerCase().includes("r");
+  const reroll = command.toLowerCase().includes('r');
 
-  let [amount, diceConfig] = commandCleaned.split("d");
+  let [amount, diceConfig] = commandCleaned.split('d');
   amount = Number(amount);
 
   if (amount <= 0 || isNaN(amount)) {
-    throw new Error("Must roll at least one dice");
+    throw new Error('Must roll at least one dice');
   }
 
   if (amount > 100) {
-    throw new Error("You do not need that many dice");
+    throw new Error('You do not need that many dice');
   }
 
   let sides, modifier;
   if (diceConfig === undefined) {
-    throw new Error("You must have a dice declared");
+    throw new Error('You must have a dice declared');
   }
 
-  if (diceConfig.includes("+") && diceConfig.includes("-")) {
-    throw new Error("You may only have one modifier or operator");
+  if (diceConfig.includes('+') && diceConfig.includes('-')) {
+    throw new Error('You may only have one modifier or operator');
   }
 
-  if (diceConfig.includes("+")) {
-    [sides, modifier] = diceConfig.split("+");
+  if (diceConfig.includes('+')) {
+    [sides, modifier] = diceConfig.split('+');
     sides = Number(sides);
     modifier = Number(modifier);
     if (sides <= 1) {
-      throw new Error("Dice must have more than one side");
+      throw new Error('Dice must have more than one side');
     }
     return `${amount} d${sides} + ${modifier} were rolled to get ${
       rollDice(amount, sides, reroll) + Number(modifier)
     }`;
-  } else if (diceConfig.includes("-")) {
-    [sides, modifier] = diceConfig.split("-");
+  } else if (diceConfig.includes('-')) {
+    [sides, modifier] = diceConfig.split('-');
     sides = Number(sides);
     modifier = Number(modifier);
     if (sides <= 1) {
-      throw new Error("Dice must have more than one side");
+      throw new Error('Dice must have more than one side');
     }
     return `${amount} d${sides} - ${modifier} were rolled to get ${
       rollDice(amount, sides, reroll) - Number(modifier)
@@ -231,7 +231,7 @@ function rollDecider(command) {
     sides = Number(sides);
 
     if (sides <= 1) {
-      throw new Error("Dice must have more than one side");
+      throw new Error('Dice must have more than one side');
     }
     return `${amount} d${sides} were rolled to get ${rollDice(amount, sides, reroll)}`;
   }
