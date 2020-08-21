@@ -9,9 +9,8 @@
     "start": "node -r dotenv/config index.js"
   },
   "dependencies": {
+    "dotenv": "^8.2.0",
     "eris": "^0.13.1"
   },
-  "devDependencies": {
-    "dotenv": "^8.2.0"
-  }
+  "devDependencies": {}
 }
