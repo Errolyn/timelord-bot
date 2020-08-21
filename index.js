@@ -1,7 +1,7 @@
 'use strict';
 
-var Eris = require('eris');
-var pingCount = 0;
+let Eris = require('eris');
+let pingCount = 0;
 
 // Heroku requires a port to be bound
 require('http')
