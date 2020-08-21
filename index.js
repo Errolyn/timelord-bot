@@ -1,11 +1,11 @@
 "use strict";
 
 var Eris = require("eris");
-let pingCount = 0;
+var pingCount = 0;
 
 // Heroku requires a port to be bound
 require("http")
-  .createServer((req, res) => {
+  .createServer((_, res) => {
     res.end("hello");
   })
   .listen(process.env.PORT || 5050);
@@ -17,7 +17,7 @@ const bot = new Eris.CommandClient(
     description: "A helpful server bot",
     owner: "Errolyn",
     prefix: "!",
-  }
+  },
 );
 
 bot.on("ready", () => {
@@ -30,7 +30,6 @@ bot.on("error", (err) => {
 
 let cocChannel = process.env.COC_CHANNEL_ID;
 if (cocChannel) {
-  console.log("method bound");
   bot.on("guildMemberAdd", async (guild, member) => {
     let userName = member.username;
     let serverName = guild.name;
@@ -38,7 +37,7 @@ if (cocChannel) {
 
     bot.createMessage(
       channel.id,
-      `Hi ${userName}, welcome to **${serverName}**! When you have a moment check out our <#${cocChannel}> and once you have accepted it we will give you access to the rest of the server.`
+      `Hi ${userName}, welcome to **${serverName}**! When you have a moment check out our <#${cocChannel}> and once you have accepted it we will give you access to the rest of the server.`,
     );
   });
 }
@@ -47,14 +46,12 @@ bot.registerCommand(
   "ping",
   () => {
     pingCount++;
-    return (
-      "I have been pinged " + pingCount + " times since I last took a nap."
-    );
+    return "I have been pinged " + pingCount + " times since I last took a nap.";
   },
   {
     description: "Pong!",
     fullDescription: "Used to see if the bot is responding.",
-  }
+  },
 );
 
 bot.registerCommand(
@@ -81,7 +78,7 @@ bot.registerCommand(
   {
     description: "News feed",
     fullDescription: "Use this command to add content to #news-feed.",
-  }
+  },
 );
 
 bot.registerCommand(
@@ -97,7 +94,7 @@ bot.registerCommand(
     description: "Rolls Dice and outputs value",
     fullDescription:
       "Use this command with typical dice notation `amount d sides + modifier` add an `r` at the end for rerolling 1s e.g. !roll 2d4 or 5d6+4 or 2d20+2r ",
-  }
+  },
 );
 
 bot.registerCommand(
@@ -123,7 +120,7 @@ bot.registerCommand(
   {
     description: "Accepts our discords Code of Conduct",
     fullDescription: "Pings mods and applies the COC role if configured.",
-  }
+  },
 );
 
 bot.connect();
@@ -177,26 +174,15 @@ function rollDecider(command) {
     let tempIndex = commandArray.indexOf(character);
     if (tempIndex > 0) {
       if (commandArray.indexOf(character, tempIndex + 1) > 0) {
-        throw new Error(
-          "You can have one dice, modifier, or operator at a time"
-        );
+        throw new Error("You can have one dice, modifier, or operator at a time");
       }
     }
-    if (
-      character === "r" &&
-      tempIndex != -1 &&
-      tempIndex + 1 < commandArray.length
-    ) {
+    if (character === "r" && tempIndex != -1 && tempIndex + 1 < commandArray.length) {
       throw new Error('"r" should only be at the end of your command');
     }
   });
 
-  const commandCleaned = command
-    .toLowerCase()
-    .split(" ")
-    .join("")
-    .split("r")
-    .join(""); // removes spaces and Rs
+  const commandCleaned = command.toLowerCase().split(" ").join("").split("r").join(""); // removes spaces and Rs
 
   const reroll = command.toLowerCase().includes("r");
 
@@ -247,11 +233,7 @@ function rollDecider(command) {
     if (sides <= 1) {
       throw new Error("Dice must have more than one side");
     }
-    return `${amount} d${sides} were rolled to get ${rollDice(
-      amount,
-      sides,
-      reroll
-    )}`;
+    return `${amount} d${sides} were rolled to get ${rollDice(amount, sides, reroll)}`;
   }
 }
 
