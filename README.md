@@ -2,11 +2,11 @@
 
 To start the timelord bot locally you will need to set the following env variables:
 
-- TOKEN='' *Discords bot token*
-- NEWS_CHANNEL='' *Channel number for whichever room you want a news feed in.*
-- COC_CHANNEL_ID='' *Channel where new members should be directed. Optional*
-- COC_ROLE_ID='' *This is the role that will be applied when a member agrees to your code of conduct. Optional*
-- ADMIN_CHANNEL_ID='' *The room where you would like notifications on when a member has agreed to the Code of Conduct. Optional*
+- TOKEN='' _Discords bot token_
+- NEWS_CHANNEL='' _Channel number for whichever room you want a news feed in._
+- COC_CHANNEL_ID='' _Channel where new members should be directed. Optional_
+- COC_ROLE_ID='' _This is the role that will be applied when a member agrees to your code of conduct. Optional_
+- ADMIN_CHANNEL_ID='' _The room where you would like notifications on when a member has agreed to the Code of Conduct. Optional_
 
 You will need to install dependentcies `yarn install`
 

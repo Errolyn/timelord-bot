@@ -12,5 +12,7 @@
     "dotenv": "^8.2.0",
     "eris": "^0.13.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "prettier": "^2.0.5"
+  }
 }

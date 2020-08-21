@@ -22,6 +22,11 @@ opusscript@^0.0.7:
   resolved "https://registry.yarnpkg.com/opusscript/-/opusscript-0.0.7.tgz#7dd7ec55b302d26bf588e6fc3feb090b8c7da856"
   integrity sha512-DcBadTdYTUuH9zQtepsLjQn4Ll6rs3dmeFvN+SD0ThPnxRBRm/WC1zXWPg+wgAJimB784gdZvUMA57gDP7FdVg==
 
+prettier@^2.0.5:
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.5.tgz#d6d56282455243f2f92cc1716692c08aa31522d4"
+  integrity sha512-7PtVymN48hGcO4fGjybyBSIWDsLU4H4XlvOHfq91pz9kkGlonzwTfYkaIEwiRg/dAJF9YlbsduBAgtYLi+8cFg==
+
 tweetnacl@^1.0.1:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
