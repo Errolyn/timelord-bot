@@ -92,6 +92,31 @@ bot.registerCommand(
     }
 );
 
+bot.registerCommand(
+  'acceptcoc',
+  (msg) => {
+    const userID = msg.member.id;
+    const messageMods = `<@${userID}> has accepted the Code of Conduct.`;
+    const messageMember = 'Thanks for accepting the Code of Conduct, a mod will get you access to the wider server soon!';
+    const adminChannel = process.env.ADMIN_CHANNEL_ID;
+    const guildID = msg.channel.guild.id;
+    const reason = 'member accepts the Code of Conduct';
+    const cocRole = process.env.COC_ROLE_ID;
+
+    if (adminChannel) {
+      createMessage(adminChannel, messageMods);
+    }
+    if (cocRole) {
+      bot.addGuildMemberRole(guildID, userID, cocRole, reason);
+    }
+    createMessage(msg.channel.id, messageMember);
+  },
+  {
+    description: 'Accepts our discords Code of Conduct',
+    fullDescription: 'Pings mods and applies the COC role if configured.',
+  },
+);
+
 bot.connect();
 
 // helper functions
