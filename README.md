@@ -13,5 +13,3 @@ You will need to install dependentcies `yarn install`
 Add envs to a .env file and run `source .env`
 
 To run: `yarn start`
-To lint: `yarn lint`
-
