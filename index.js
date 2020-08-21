@@ -1,4 +1,3 @@
-/* eslint-disable prefer-const */
 const Eris = require('eris');
 
 let pingCount = 0;
