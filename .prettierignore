@@ -1,0 +1,8 @@
+.env
+.eslintrc.json
+.gitignore
+.gitattributes
+.eslintignore
+.prettierignore
+node_modules/
+yarn.lock
