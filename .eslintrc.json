@@ -2,7 +2,10 @@
   "extends": ["eslint:recommended", "prettier"],
   "plugins": ["prettier"],
   "parserOptions": { "ecmaVersion": 10 },
-  "env": { "es6": true },
+  "env": {
+    "node": true,
+    "es6": true
+  },
   "rules": {
     "prettier/prettier": ["error"]
   }

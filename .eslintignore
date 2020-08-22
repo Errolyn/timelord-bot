@@ -1,8 +1,9 @@
 .env
+.eslintignore
 .eslintrc.json
 .gitignore
 .gitattributes
-.eslintignore
 .prettierignore
 node_modules/
+package.json
 yarn.lock
