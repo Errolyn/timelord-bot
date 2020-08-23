@@ -12,6 +12,6 @@ jobs:
       - name: Install modules
         run: yarn
       - name: Run ESLint
-        run: eslint **/*.js
+        run: yarn lint
       - name: Run Prettier
-        run: prettier --check
+        run: yarn format

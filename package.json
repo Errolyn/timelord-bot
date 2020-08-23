@@ -6,7 +6,9 @@
   "author": "Errolyn",
   "license": "MIT",
   "scripts": {
-    "start": "node -r dotenv/config index.js"
+    "start": "node -r dotenv/config index.js",
+    "lint": "eslint . --ext .js",
+    "format": "prettier ./.eslintrc.json -c **/*"
   },
   "dependencies": {
     "dotenv": "^8.2.0",
