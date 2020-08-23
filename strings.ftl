@@ -22,11 +22,9 @@ news-cmd-long-description = Use this command to add content to { -news-channel-n
 # $messageChannelName - The name of the channel that the user ran the command in.
 #   May also be the localizable string with id 'news-dm-description'.
 # $contentForNewsChannel - The text the user provided
-# $attachments - The attachments the user provided
 news-post-message =
   { $userName } posted in { $messageChannelName }:
   { $contentForNewsChannel }
-  { $attachments }
 
 news-dm-description = a DM
 

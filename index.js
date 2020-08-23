@@ -1,6 +1,7 @@
 'use strict';
 
 let Eris = require('eris');
+let fetch = require('node-fetch');
 
 let ftl = require('./lib/ftl.js');
 
@@ -56,7 +57,7 @@ bot.registerCommand(
 
 bot.registerCommand(
   'news',
-  (msg) => {
+  async (msg) => {
     const newsChannel = process.env.NEWS_CHANNEL;
     const contentForNewsChannel = stripContent(msg.content);
 
@@ -70,15 +71,27 @@ bot.registerCommand(
       messageChannelName = ftl('news-dm-description');
     }
 
-    let attachments = formatAttachments(msg.attachments);
     let content = ftl('news-post-message', {
       userName,
       messageChannelName,
       contentForNewsChannel,
-      attachments,
     });
 
-    createMessage(newsChannel, content);
+    let files = await Promise.all(
+      msg.attachments.map(async (attachment) => {
+        try {
+          let res = await fetch(attachment.url);
+          let buffer = await res.buffer();
+          return { file: buffer, name: attachment.filename };
+        } catch (err) {
+          console.warning(`Couldn't fetch attachment from message ${msg.id}: ${attachment.url}`);
+          return null;
+        }
+      }),
+    );
+    files = files.filter((a) => a !== null);
+
+    bot.createMessage(newsChannel, content, files);
   },
   {
     description: ftl('news-cmd-description'),
@@ -111,12 +124,12 @@ bot.registerCommand(
     const reason = 'member accepts the Code of Conduct';
 
     if (adminChannel) {
-      createMessage(adminChannel, ftl('accept-coc-admin-message', { userID }));
+      bot.createMessage(adminChannel, { content: ftl('accept-coc-admin-message', { userID }) });
     }
     if (cocRole) {
       bot.addGuildMemberRole(guildID, userID, cocRole, reason);
     }
-    createMessage(msg.channel.id, ftl('accept-coc-message-member'));
+    bot.createMessage(msg.channel.id, { content: ftl('accept-coc-message-member') });
   },
   {
     description: ftl('acceptcoc-cmd-description'),
@@ -134,14 +147,6 @@ function stripContent(messageContent) {
 
   const userPost = stringParts.join(' ');
   return userPost;
-}
-
-function createMessage(channel, content) {
-  bot.createMessage(channel, { content });
-}
-
-function formatAttachments(attachments = []) {
-  return attachments.map((attachment) => attachment.url).join('\n');
 }
 
 function rollDecider(command) {
