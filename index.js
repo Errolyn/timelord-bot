@@ -1,6 +1,10 @@
 'use strict';
 
 let Eris = require('eris');
+let fetch = require('node-fetch');
+
+let ftl = require('./lib/ftl.js');
+
 let pingCount = 0;
 
 // Heroku requires a port to be bound
@@ -35,10 +39,7 @@ if (cocChannel) {
     let serverName = guild.name;
     let channel = await bot.getDMChannel(member.id);
 
-    bot.createMessage(
-      channel.id,
-      `Hi ${userName}, welcome to **${serverName}**! When you have a moment check out our <#${cocChannel}> and once you have accepted it we will give you access to the rest of the server.`,
-    );
+    bot.createMessage(channel.id, ftl('coc-welcome-prompt', { userName, serverName, cocChannel }));
   });
 }
 
@@ -46,17 +47,17 @@ bot.registerCommand(
   'ping',
   () => {
     pingCount++;
-    return 'I have been pinged ' + pingCount + ' times since I last took a nap.';
+    return ftl('ping-response', { pingCount });
   },
   {
-    description: 'Pong!',
-    fullDescription: 'Used to see if the bot is responding.',
+    description: ftl('ping-cmd-description'),
+    fullDescription: ftl('ping-cmd-long-description'),
   },
 );
 
 bot.registerCommand(
   'news',
-  (msg) => {
+  async (msg) => {
     const newsChannel = process.env.NEWS_CHANNEL;
     const contentForNewsChannel = stripContent(msg.content);
 
@@ -67,17 +68,34 @@ bot.registerCommand(
       messageChannelName = msg.channel.name;
     } else if (msg.channel.type == 1) {
       userName = msg.author.username;
-      messageChannelName = 'a DM';
+      messageChannelName = ftl('news-dm-description');
     }
 
-    let attachments = formatAttachments(msg.attachments);
-    let content = `${userName} posted in ${messageChannelName}: \n${contentForNewsChannel} \n${attachments}`;
+    let content = ftl('news-post-message', {
+      userName,
+      messageChannelName,
+      contentForNewsChannel,
+    });
 
-    createMessage(newsChannel, content, attachments);
+    let files = await Promise.all(
+      msg.attachments.map(async (attachment) => {
+        try {
+          let res = await fetch(attachment.url);
+          let buffer = await res.buffer();
+          return { file: buffer, name: attachment.filename };
+        } catch (err) {
+          console.warning(`Couldn't fetch attachment from message ${msg.id}: ${attachment.url}`);
+          return null;
+        }
+      }),
+    );
+    files = files.filter((a) => a !== null);
+
+    bot.createMessage(newsChannel, content, files);
   },
   {
-    description: 'News feed',
-    fullDescription: 'Use this command to add content to #news-feed.',
+    description: ftl('news-cmd-description'),
+    fullDescription: ftl('news-cmd-long-description'),
   },
 );
 
@@ -91,35 +109,31 @@ bot.registerCommand(
     }
   },
   {
-    description: 'Rolls Dice and outputs value',
-    fullDescription:
-      'Use this command with typical dice notation `amount d sides + modifier` add an `r` at the end for rerolling 1s e.g. !roll 2d4 or 5d6+4 or 2d20+2r ',
+    description: ftl('roll-cmd-description'),
+    fullDescription: ftl('roll-cmd-long-description'),
   },
 );
 
 bot.registerCommand(
   'acceptcoc',
   (msg) => {
-    const userID = msg.member.id;
-    const messageMods = `<@${userID}> has accepted the Code of Conduct.`;
-    const messageMember =
-      'Thanks for accepting the Code of Conduct, a mod will get you access to the wider server soon!';
     const adminChannel = process.env.ADMIN_CHANNEL_ID;
+    const cocRole = process.env.COC_ROLE_ID;
+    const userID = msg.member.id;
     const guildID = msg.channel.guild.id;
     const reason = 'member accepts the Code of Conduct';
-    const cocRole = process.env.COC_ROLE_ID;
 
     if (adminChannel) {
-      createMessage(adminChannel, messageMods);
+      bot.createMessage(adminChannel, { content: ftl('accept-coc-admin-message', { userID }) });
     }
     if (cocRole) {
       bot.addGuildMemberRole(guildID, userID, cocRole, reason);
     }
-    createMessage(msg.channel.id, messageMember);
+    bot.createMessage(msg.channel.id, { content: ftl('accept-coc-message-member') });
   },
   {
-    description: 'Accepts our discords Code of Conduct',
-    fullDescription: 'Pings mods and applies the COC role if configured.',
+    description: ftl('acceptcoc-cmd-description'),
+    fullDescription: ftl('acceptcoc-cmd-long-description'),
   },
 );
 
@@ -133,14 +147,6 @@ function stripContent(messageContent) {
 
   const userPost = stringParts.join(' ');
   return userPost;
-}
-
-function createMessage(channel, content) {
-  bot.createMessage(channel, { content });
-}
-
-function formatAttachments(attachments = []) {
-  return attachments.map((attachment) => attachment.url).join('\n');
 }
 
 function rollDecider(command) {
@@ -166,7 +172,7 @@ function rollDecider(command) {
 
   commandArray.forEach((character) => {
     if (!allowableCharacters.includes(character)) {
-      throw new Error('Please remove invalid characters');
+      throw new Error(ftl('roll-error-invalid-chars'));
     }
   });
 
@@ -174,11 +180,11 @@ function rollDecider(command) {
     let tempIndex = commandArray.indexOf(character);
     if (tempIndex > 0) {
       if (commandArray.indexOf(character, tempIndex + 1) > 0) {
-        throw new Error('You can have one dice, modifier, or operator at a time');
+        throw new Error(ftl('roll-error-multiple-parts'));
       }
     }
     if (character === 'r' && tempIndex != -1 && tempIndex + 1 < commandArray.length) {
-      throw new Error('"r" should only be at the end of your command');
+      throw new Error(ftl('roll-error-r-not-at-end'));
     }
   });
 
@@ -190,20 +196,20 @@ function rollDecider(command) {
   amount = Number(amount);
 
   if (amount <= 0 || isNaN(amount)) {
-    throw new Error('Must roll at least one dice');
+    throw new Error(ftl('roll-error-atleast-one-die'));
   }
 
   if (amount > 100) {
-    throw new Error('You do not need that many dice');
+    throw new Error(ftl('roll-error-too-many-dice'));
   }
 
   let sides, modifier;
   if (diceConfig === undefined) {
-    throw new Error('You must have a dice declared');
+    throw new Error(ftl('roll-error-no-dice-description'));
   }
 
   if (diceConfig.includes('+') && diceConfig.includes('-')) {
-    throw new Error('You may only have one modifier or operator');
+    throw new Error(ftl('roll-error-too-many-operators'));
   }
 
   if (diceConfig.includes('+')) {
@@ -211,29 +217,40 @@ function rollDecider(command) {
     sides = Number(sides);
     modifier = Number(modifier);
     if (sides <= 1) {
-      throw new Error('Dice must have more than one side');
+      throw new Error(ftl('roll-error-too-few-dice-sides'));
     }
-    return `${amount} d${sides} + ${modifier} were rolled to get ${
-      rollDice(amount, sides, reroll) + Number(modifier)
-    }`;
+    return ftl('roll-output', {
+      amount,
+      sides,
+      modifier: `+ ${modifier}`,
+      result: rollDice(amount, sides, reroll) + Number(modifier),
+    });
   } else if (diceConfig.includes('-')) {
     [sides, modifier] = diceConfig.split('-');
     sides = Number(sides);
     modifier = Number(modifier);
     if (sides <= 1) {
-      throw new Error('Dice must have more than one side');
+      throw new Error(ftl('roll-error-too-few-dice-sides'));
     }
-    return `${amount} d${sides} - ${modifier} were rolled to get ${
-      rollDice(amount, sides, reroll) - Number(modifier)
-    }`;
+    return ftl('roll-output', {
+      amount,
+      sides,
+      modifier: `- ${modifier}`,
+      result: rollDice(amount, sides, reroll) - Number(modifier),
+    });
   } else {
     sides = diceConfig;
     sides = Number(sides);
 
     if (sides <= 1) {
-      throw new Error('Dice must have more than one side');
+      throw new Error(ftl('roll-error-too-few-dice-sides'));
     }
-    return `${amount} d${sides} were rolled to get ${rollDice(amount, sides, reroll)}`;
+    return ftl('roll-output', {
+      amount,
+      sides,
+      modifer: '',
+      result: rollDice(amount, sides, reroll),
+    });
   }
 }
 
