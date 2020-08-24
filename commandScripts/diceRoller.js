@@ -99,7 +99,7 @@ module.exports.rollDecider = (command) => {
     return ftl('roll-output', {
       amount,
       sides,
-      modifer: '',
+      modifier: '',
       result: rollDice(amount, sides, reroll),
     });
   }
