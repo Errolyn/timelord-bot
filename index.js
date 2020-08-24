@@ -102,10 +102,8 @@ bot.registerCommand(
   'roll',
   (msg) => {
     let dice = stripContent(msg.content);
-    console.log('dice');
     try {
-      console.log(diceRoller.rollDecider(dice));
-      diceRoller.rollDecider(dice);
+      return diceRoller.rollDecider(dice);
     } catch (err) {
       return err.toString();
     }

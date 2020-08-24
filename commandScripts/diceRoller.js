@@ -1,7 +1,6 @@
 let ftl = require('../lib/ftl');
 
 module.exports.rollDecider = (command) => {
-  console.log('diceRoller ran');
   const commandArray = command.toLowerCase().split('');
   const allowableCharacters = [
     '1',
