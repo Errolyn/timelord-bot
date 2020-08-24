@@ -1,7 +1,9 @@
+bot-description = A helpful server bot
+
 ## Ping Command
 
 ping-cmd-description = Pong!
-ping-cmd-long-description = Used to see if the bot is responding
+ping-cmd-full-description = Used to see if the bot is responding
 
 # $pingCount (Number) - The number of times the bot has been pinged
 ping-response =
@@ -16,7 +18,7 @@ ping-response =
 
 -news-channel-name = #news-feed
 news-cmd-description = News feed
-news-cmd-long-description = Use this command to add content to { -news-channel-name }
+news-cmd-full-description = Use this command to add content to { -news-channel-name }
 
 # $userName - The user that posted the news
 # $messageChannelName - The name of the channel that the user ran the command in.
@@ -33,7 +35,7 @@ news-dm-description = a DM
 
 roll-cmd-description = Rolls dice and outputs the resulting value
 
-roll-cmd-long-description =
+roll-cmd-full-description =
   Use this command with typical dice notation `amount d sides + modifier`.
   Add an `r` at the end for rerolling 1s.
   Examples:
@@ -69,7 +71,7 @@ roll-error-too-few-dice-sides = Dice must have more than one side
 coc-welcome-prompt = Hi { $userName }, welcome to **{ $serverName }**! When you have a moment check out our <#{ $cocChannel }> and once you have accepted it we will give you access to the rest of the server.
 
 acceptcoc-cmd-description = Accepts our discords Code of Conduct
-acceptcoc-cmd-long-description = Pings mods and applies the COC role if configured.
+acceptcoc-cmd-full-description = Pings mods and applies the COC role if configured.
 acceptcoc-member-message = Thanks for accepting the Code of Conduct, a mod will get you access to the wider server soon!
 
 # $userId - The id of the user that accepted the CoC
