@@ -1,6 +1,7 @@
 let ftl = require('../lib/ftl');
 
-module.exports = function (bot) {
+module.exports.register = function (botArguments) {
+  const bot = botArguments.bot;
   bot.registerCommand('roll', (msg) => {
     let dice = stripContent(msg.content);
     try {

@@ -81,7 +81,7 @@ bot.registerCommand('news', async (msg) => {
   bot.createMessage(newsChannel, content, files);
 });
 
-require('./commands/diceRoller')(bot);
+require('./commands/diceRoller').register({ bot });
 
 bot.registerCommand('acceptcoc', (msg) => {
   const adminChannel = process.env.ADMIN_CHANNEL_ID;
