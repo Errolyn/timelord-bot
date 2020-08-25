@@ -1,6 +1,17 @@
 let ftl = require('../lib/ftl');
 
-module.exports.rollDecider = (command) => {
+module.exports = function (bot) {
+  bot.registerCommand('roll', (msg) => {
+    let dice = stripContent(msg.content);
+    try {
+      return rollDecider(dice);
+    } catch (err) {
+      return err.toString();
+    }
+  });
+};
+
+function rollDecider(command) {
   const commandArray = command.toLowerCase().split('');
   const allowableCharacters = [
     '1',
@@ -103,7 +114,7 @@ module.exports.rollDecider = (command) => {
       result: rollDice(amount, sides, reroll),
     });
   }
-};
+}
 
 function getRandomNumber(max) {
   let randomNumber = Math.floor(Math.random() * max) + 1;
@@ -123,4 +134,12 @@ function rollDice(amount, sides, reroll) {
     diceTotal += currentRoll;
   }
   return diceTotal;
+}
+
+function stripContent(messageContent) {
+  const stringParts = messageContent.split(' ');
+  stringParts.shift();
+
+  const userPost = stringParts.join(' ');
+  return userPost;
 }

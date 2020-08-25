@@ -3,7 +3,6 @@
 let fetch = require('node-fetch');
 let BotWrapper = require('./lib/BotWrapper.js');
 let ftl = require('./lib/ftl.js');
-let diceRoller = require('./commandScripts/diceRoller.js');
 let pingCount = 0;
 
 // Heroku requires a port to be bound
@@ -82,14 +81,7 @@ bot.registerCommand('news', async (msg) => {
   bot.createMessage(newsChannel, content, files);
 });
 
-bot.registerCommand('roll', (msg) => {
-  let dice = stripContent(msg.content);
-  try {
-    return diceRoller.rollDecider(dice);
-  } catch (err) {
-    return err.toString();
-  }
-});
+require('./commands/diceRoller')(bot);
 
 bot.registerCommand('acceptcoc', (msg) => {
   const adminChannel = process.env.ADMIN_CHANNEL_ID;
