@@ -92,7 +92,7 @@ bot.registerCommand('acceptcoc', (msg) => {
   const user = `<@${msg.member.id}>`;
 
   if (adminChannel) {
-    bot.createMessage(adminChannel, { content: ftl('accept-coc-admin-message', { user }) });
+    bot.createMessage(adminChannel, { content: ftl('acceptcoc-admin-message', { user }) });
   }
   if (cocRole) {
     bot.addGuildMemberRole(guildID, userID, cocRole, reason);
