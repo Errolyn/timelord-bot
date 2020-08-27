@@ -74,5 +74,5 @@ acceptcoc-cmd-description = Accepts our discords Code of Conduct
 acceptcoc-cmd-full-description = Pings mods and applies the COC role if configured.
 acceptcoc-member-message = Thanks for accepting the Code of Conduct, a mod will get you access to the wider server soon!
 
-# $userId - The id of the user that accepted the CoC
-accept-coc-admin-message = <@{ $userID }> has accepted the Code of Conduct.
+# $user - The discord formated id of the user that accepted the CoC
+acceptcoc-admin-message = { $user } has accepted the Code of Conduct.

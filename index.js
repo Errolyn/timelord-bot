@@ -89,14 +89,15 @@ bot.registerCommand('acceptcoc', (msg) => {
   const userID = msg.member.id;
   const guildID = msg.channel.guild.id;
   const reason = 'member accepts the Code of Conduct';
+  const user = `<@${msg.member.id}>`;
 
   if (adminChannel) {
-    bot.createMessage(adminChannel, { content: ftl('accept-coc-admin-message', { userID }) });
+    bot.createMessage(adminChannel, { content: ftl('acceptcoc-admin-message', { user }) });
   }
   if (cocRole) {
     bot.addGuildMemberRole(guildID, userID, cocRole, reason);
   }
-  bot.createMessage(msg.channel.id, { content: ftl('accept-coc-message-member') });
+  bot.createMessage(msg.channel.id, { content: ftl('acceptcoc-member-message') });
 });
 
 bot.connect();
