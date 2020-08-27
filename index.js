@@ -99,6 +99,7 @@ bot.registerCommand('acceptcoc', (msg) => {
   }
   bot.createMessage(msg.channel.id, { content: ftl('acceptcoc-member-message') });
 });
+require('./commands/agreedToCoc').register({ bot });
 
 bot.connect();
 
