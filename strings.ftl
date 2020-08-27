@@ -75,4 +75,4 @@ acceptcoc-cmd-full-description = Pings mods and applies the COC role if configur
 acceptcoc-member-message = Thanks for accepting the Code of Conduct, a mod will get you access to the wider server soon!
 
 # $userId - The id of the user that accepted the CoC
-accept-coc-admin-message = <@{ $userID }> has accepted the Code of Conduct.
+accept-coc-admin-message = { $user } has accepted the Code of Conduct.
