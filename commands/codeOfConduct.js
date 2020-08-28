@@ -8,9 +8,10 @@ module.exports.register = (botArguments) => {
     const userID = msg.member.id;
     const guildID = msg.channel.guild.id;
     const reason = 'member accepts the Code of Conduct';
+    const user = `<@${msg.member.id}>`;
 
     if (adminChannel) {
-      bot.createMessage(adminChannel, { content: ftl('accept-coc-admin-message', { userID }) });
+      bot.createMessage(adminChannel, { content: ftl('acceptcoc-admin-message', { user }) });
     }
     if (cocRole) {
       bot.addGuildMemberRole(guildID, userID, cocRole, reason);
