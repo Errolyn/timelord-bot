@@ -4,6 +4,7 @@ let fetch = require('node-fetch');
 let BotWrapper = require('./lib/BotWrapper.js');
 let ftl = require('./lib/ftl.js');
 let pingCount = 0;
+let stripContent = require('../lib/utils').stripContent;
 
 // Heroku requires a port to be bound
 require('http')
@@ -100,15 +101,6 @@ bot.registerCommand('acceptcoc', (msg) => {
   bot.createMessage(msg.channel.id, { content: ftl('acceptcoc-member-message') });
 });
 require('./commands/agreedToCoc').register({ bot });
+// require('./commands/agreedToCoc').register({ bot });
 
 bot.connect();
-
-// helper functions
-
-function stripContent(messageContent) {
-  const stringParts = messageContent.split(' ');
-  stringParts.shift();
-
-  const userPost = stringParts.join(' ');
-  return userPost;
-}

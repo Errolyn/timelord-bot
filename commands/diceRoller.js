@@ -1,4 +1,5 @@
 let ftl = require('../lib/ftl');
+let stripContent = require('../lib/utils').stripContent;
 
 module.exports.register = function (botArguments) {
   const bot = botArguments.bot;
@@ -135,12 +136,4 @@ function rollDice(amount, sides, reroll) {
     diceTotal += currentRoll;
   }
   return diceTotal;
-}
-
-function stripContent(messageContent) {
-  const stringParts = messageContent.split(' ');
-  stringParts.shift();
-
-  const userPost = stringParts.join(' ');
-  return userPost;
 }
