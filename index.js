@@ -3,8 +3,9 @@
 let fetch = require('node-fetch');
 let BotWrapper = require('./lib/BotWrapper.js');
 let ftl = require('./lib/ftl.js');
+let stripContent = require('./lib/utils').stripContent;
+
 let pingCount = 0;
-let stripContent = require('../lib/utils').stripContent;
 
 // Heroku requires a port to be bound
 require('http')
@@ -29,22 +30,12 @@ bot.on('ready', () => {
 bot.on('error', (err) => {
   console.log(err);
 });
-
-let cocChannel = process.env.COC_CHANNEL_ID;
-if (cocChannel) {
-  bot.on('guildMemberAdd', async (guild, member) => {
-    let userName = member.username;
-    let serverName = guild.name;
-    let channel = await bot.getDMChannel(member.id);
-
-    bot.createMessage(channel.id, ftl('coc-welcome-prompt', { userName, serverName, cocChannel }));
-  });
-}
-
 bot.registerCommand('ping', () => {
   pingCount++;
   return ftl('ping-response', { pingCount });
 });
+
+require('./commands/codeOfConduct').onJoin({ bot });
 
 bot.registerCommand('news', async (msg) => {
   const newsChannel = process.env.NEWS_CHANNEL;
@@ -102,5 +93,6 @@ bot.registerCommand('acceptcoc', (msg) => {
 });
 require('./commands/agreedToCoc').register({ bot });
 // require('./commands/agreedToCoc').register({ bot });
+require('./commands/codeOfConduct').register({ bot });
 
 bot.connect();
