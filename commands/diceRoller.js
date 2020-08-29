@@ -4,17 +4,13 @@ let { stripContent, getRandomNumber } = require('../lib/utils');
 module.exports.register = ({ bot }) => {
   bot.registerCommand('roll', (msg) => {
     try {
-      console.log('validate step:');
       let command = validateInputs(stripContent(msg.content)); //Checks all characters are valid outputs command
-      console.log(command);
-      console.log('diceDetails:');
+
       let dice = diceDetails(command);
       validateRollparams(dice); // Checks that all mandatory params are present
-      console.log(dice);
-      console.log('rolling dice:');
+
       let results = rollDice(dice);
-      console.log(results);
-      console.log('formatting:');
+
       return formatResults(dice, results);
     } catch (err) {
       return err.toString();
@@ -24,15 +20,6 @@ module.exports.register = ({ bot }) => {
 
 // Handles the logic of the command and returns correct messages to chat.
 function formatResults({ add, subtract, amount, sides, modifier }, results) {
-  console.log(add, subtract, amount, sides, modifier);
-  console.log(
-    ftl('roll-output', {
-      amount,
-      sides,
-      modifier: '',
-      result: results,
-    }),
-  );
   if (add) {
     return ftl('roll-output', {
       amount,
@@ -143,13 +130,13 @@ function diceDetails(command) {
   const commandCleaned = command.toLowerCase().split(' ').join('').split('r').join(''); // removes spaces and Rs
 
   let [amount, diceConfig] = commandCleaned.split('d');
-  let [sides, modifier] = diceConfig.split('+') ? diceConfig.split('+') : diceConfig.split('-');
+  let [sides, modifier] = diceConfig.split('+') || diceConfig.split('-');
 
   dice.reroll = command.toLowerCase().includes('r'); //Boolean
   dice.add = diceConfig.includes('+'); //Boolean
   dice.subtract = diceConfig.includes('-'); //Boolean
   dice.amount = Number(amount); //Number
   dice.sides = Number(sides); //Number
-  dice.modifier = Number(modifier) ? Number(modifier) : 0; // Sets the value of the modifier to 0 if not provided.
+  dice.modifier = Number(modifier) || 0; // Sets the value of the modifier to 0 if not provided.
   return dice;
 }
