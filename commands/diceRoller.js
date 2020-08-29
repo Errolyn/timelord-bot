@@ -5,12 +5,8 @@ module.exports.register = ({ bot }) => {
   bot.registerCommand('roll', (msg) => {
     try {
       let command = validateInputs(stripContent(msg.content)); //Checks all characters are valid outputs command
-
-      let dice = diceDetails(command);
-      validateRollparams(dice); // Checks that all mandatory params are present
-
+      let dice = parseDiceCommand(command);
       let results = rollDice(dice);
-
       return formatResults(dice, results);
     } catch (err) {
       return err.toString();
@@ -107,36 +103,35 @@ function validateInputs(command) {
 }
 
 // Makes sure we can make a valid roll after command had been parsed.
-function validateRollparams({ add, subtract, amount, sides }) {
+function validateRollParams({ add, subtract, amount, sides }) {
   if (amount <= 0) {
     throw new Error(ftl('roll-error-atleast-one-die'));
   }
-
   if (amount > 100) {
     throw new Error(ftl('roll-error-too-many-dice'));
   }
-
   if (add && subtract) {
     throw new Error(ftl('roll-error-too-many-operators'));
   }
   if (sides <= 1) {
     throw new Error(ftl('roll-error-too-few-dice-sides'));
   }
+  return true;
 }
 
 // Breaks down the command into the needed parts and return an object.
-function diceDetails(command) {
+function parseDiceCommand(command) {
   let dice = new Object();
   const commandCleaned = command.toLowerCase().split(' ').join('').split('r').join(''); // removes spaces and Rs
-
   let [amount, diceConfig] = commandCleaned.split('d');
   let [sides, modifier] = diceConfig.split('+') || diceConfig.split('-');
-
   dice.reroll = command.toLowerCase().includes('r'); //Boolean
   dice.add = diceConfig.includes('+'); //Boolean
   dice.subtract = diceConfig.includes('-'); //Boolean
   dice.amount = Number(amount); //Number
   dice.sides = Number(sides); //Number
   dice.modifier = Number(modifier) || 0; // Sets the value of the modifier to 0 if not provided.
-  return dice;
+  if (validateRollParams(dice)) {
+    return dice;
+  }
 }
