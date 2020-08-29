@@ -119,7 +119,7 @@ function validateInputs(command) {
   return command;
 }
 
-// Makes sure we can make a valid roll after command had been parced.
+// Makes sure we can make a valid roll after command had been parsed.
 function validateRollparams({ add, subtract, amount, sides }) {
   if (amount <= 0) {
     throw new Error(ftl('roll-error-atleast-one-die'));
