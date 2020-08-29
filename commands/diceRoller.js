@@ -1,12 +1,21 @@
 let ftl = require('../lib/ftl');
 let { stripContent, getRandomNumber } = require('../lib/utils');
 
-module.exports.register = (botArguments) => {
-  const bot = botArguments.bot;
+module.exports.register = ({ bot }) => {
   bot.registerCommand('roll', (msg) => {
-    let command = stripContent(msg.content);
     try {
-      return rollDecider(command);
+      console.log('validate step:');
+      let command = validateInputs(stripContent(msg.content)); //Checks all characters are valid outputs command
+      console.log(command);
+      console.log('diceDetails:');
+      let dice = diceDetails(command);
+      validateRollparams(dice); // Checks that all mandatory params are present
+      console.log(dice);
+      console.log('rolling dice:');
+      let results = rollDice(dice);
+      console.log(results);
+      console.log('formatting:');
+      return formatResults(dice, results);
     } catch (err) {
       return err.toString();
     }
@@ -14,38 +23,42 @@ module.exports.register = (botArguments) => {
 };
 
 // Handles the logic of the command and returns correct messages to chat.
-function rollDecider(command) {
-  validateSubcommands(command); //Checks to make sure all characters are valid
-  let dice = diceDetails(command);
-  let { reroll, add, subtract, amount, sides, modifier } = dice;
-  checkValidroll(amount, add, subtract, sides);
-
+function formatResults({ add, subtract, amount, sides, modifier }, results) {
+  console.log(add, subtract, amount, sides, modifier);
+  console.log(
+    ftl('roll-output', {
+      amount,
+      sides,
+      modifier: '',
+      result: results,
+    }),
+  );
   if (add) {
     return ftl('roll-output', {
       amount,
       sides,
       modifier: `+ ${modifier}`,
-      result: rollDice(amount, sides, reroll) + modifier,
+      result: results + modifier,
     });
   } else if (subtract) {
     return ftl('roll-output', {
       amount,
       sides,
       modifier: `- ${modifier}`,
-      result: rollDice(amount, sides, reroll) - modifier,
+      result: results - modifier,
     });
   } else {
     return ftl('roll-output', {
       amount,
       sides,
       modifier: '',
-      result: rollDice(amount, sides, reroll),
+      result: results,
     });
   }
 }
 
 // Generates our dice rolls
-function rollDice(amount, sides, reroll) {
+function rollDice({ amount, sides, reroll }) {
   let diceTotal = 0;
 
   for (let roll = 0; roll < amount; roll++) {
@@ -61,7 +74,7 @@ function rollDice(amount, sides, reroll) {
 }
 
 // Makes sure all the parts needed to role our dice are present and there are no extranious charactors.
-function validateSubcommands(command) {
+function validateInputs(command) {
   const commandArray = command.toLowerCase().split('');
   const allowableCharacters = [
     '1',
@@ -103,10 +116,11 @@ function validateSubcommands(command) {
   if (!commandArray.includes('d')) {
     throw new Error(ftl('roll-error-no-dice-description'));
   }
+  return command;
 }
 
 // Makes sure we can make a valid roll after command had been parced.
-function checkValidroll(amount, add, subtract, sides) {
+function validateRollparams({ add, subtract, amount, sides }) {
   if (amount <= 0) {
     throw new Error(ftl('roll-error-atleast-one-die'));
   }
@@ -131,9 +145,9 @@ function diceDetails(command) {
   let [amount, diceConfig] = commandCleaned.split('d');
   let [sides, modifier] = diceConfig.split('+') ? diceConfig.split('+') : diceConfig.split('-');
 
-  dice.reroll = command.toLowerCase().includes('r'); //Truthy
-  dice.add = diceConfig.includes('+'); //Truthy
-  dice.subtract = diceConfig.includes('-'); //Truthy
+  dice.reroll = command.toLowerCase().includes('r'); //Boolean
+  dice.add = diceConfig.includes('+'); //Boolean
+  dice.subtract = diceConfig.includes('-'); //Boolean
   dice.amount = Number(amount); //Number
   dice.sides = Number(sides); //Number
   dice.modifier = Number(modifier) ? Number(modifier) : 0; // Sets the value of the modifier to 0 if not provided.

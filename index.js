@@ -33,7 +33,6 @@ bot.registerCommand('ping', () => {
   return ftl('ping-response', { pingCount });
 });
 
-require('./commands/codeOfConduct').onJoin({ bot });
 require('./commands/newsFeed').register({ bot });
 require('./commands/diceRoller').register({ bot });
 require('./commands/codeOfConduct').register({ bot });

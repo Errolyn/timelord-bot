@@ -1,7 +1,6 @@
 let ftl = require('../lib/ftl');
 
-module.exports.register = (botArguments) => {
-  const bot = botArguments.bot;
+module.exports.register = ({ bot }) => {
   bot.registerCommand('acceptcoc', (msg) => {
     const adminChannel = process.env.ADMIN_CHANNEL_ID;
     const cocRole = process.env.COC_ROLE_ID;
@@ -18,11 +17,8 @@ module.exports.register = (botArguments) => {
     }
     bot.createMessage(msg.channel.id, { content: ftl('acceptcoc-member-message') });
   });
-};
 
-//This fires on the member joining event.
-module.exports.onJoin = (botArguments) => {
-  const bot = botArguments.bot;
+  //This fires on the member joining event.
   const cocChannel = process.env.COC_CHANNEL_ID;
   if (cocChannel) {
     bot.on('guildMemberAdd', async (guild, member) => {

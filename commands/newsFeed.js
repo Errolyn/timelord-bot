@@ -2,8 +2,7 @@ let ftl = require('../lib/ftl');
 let { stripContent, memberName, incomingChannel } = require('../lib/utils');
 let fetch = require('node-fetch');
 
-module.exports.register = (botArguments) => {
-  const bot = botArguments.bot;
+module.exports.register = ({ bot }) => {
   bot.registerCommand('news', async (msg) => {
     const newsChannel = process.env.NEWS_CHANNEL;
     const contentForNewsChannel = stripContent(msg.content);
