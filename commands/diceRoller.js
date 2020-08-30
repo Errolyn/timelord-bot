@@ -1,18 +1,63 @@
 let ftl = require('../lib/ftl');
+let { stripContent, getRandomNumber } = require('../lib/utils');
 
-module.exports.register = function (botArguments) {
-  const bot = botArguments.bot;
+module.exports.register = ({ bot }) => {
   bot.registerCommand('roll', (msg) => {
-    let dice = stripContent(msg.content);
     try {
-      return rollDecider(dice);
+      let command = validateInputs(stripContent(msg.content)); //Checks all characters are valid outputs command
+      let dice = parseDiceCommand(command);
+      let results = rollDice(dice);
+      return formatResults(dice, results);
     } catch (err) {
       return err.toString();
     }
   });
 };
 
-function rollDecider(command) {
+// Handles the logic of the command and returns correct messages to chat.
+function formatResults({ add, subtract, amount, sides, modifier }, results) {
+  if (add) {
+    return ftl('roll-output', {
+      amount,
+      sides,
+      modifier: `+ ${modifier}`,
+      result: results + modifier,
+    });
+  } else if (subtract) {
+    return ftl('roll-output', {
+      amount,
+      sides,
+      modifier: `- ${modifier}`,
+      result: results - modifier,
+    });
+  } else {
+    return ftl('roll-output', {
+      amount,
+      sides,
+      modifier: '',
+      result: results,
+    });
+  }
+}
+
+// Generates our dice rolls
+function rollDice({ amount, sides, reroll }) {
+  let diceTotal = 0;
+
+  for (let roll = 0; roll < amount; roll++) {
+    let currentRoll;
+
+    do {
+      currentRoll = getRandomNumber(sides);
+    } while (reroll && currentRoll <= 1);
+
+    diceTotal += currentRoll;
+  }
+  return diceTotal;
+}
+
+// Makes sure all the parts needed to role our dice are present and there are no extranious charactors.
+function validateInputs(command) {
   const commandArray = command.toLowerCase().split('');
   const allowableCharacters = [
     '1',
@@ -51,96 +96,42 @@ function rollDecider(command) {
     }
   });
 
-  const commandCleaned = command.toLowerCase().split(' ').join('').split('r').join(''); // removes spaces and Rs
+  if (!commandArray.includes('d')) {
+    throw new Error(ftl('roll-error-no-dice-description'));
+  }
+  return command;
+}
 
-  const reroll = command.toLowerCase().includes('r');
-
-  let [amount, diceConfig] = commandCleaned.split('d');
-  amount = Number(amount);
-
-  if (amount <= 0 || isNaN(amount)) {
+// Makes sure we can make a valid roll after command had been parsed.
+function validateRollParams({ add, subtract, amount, sides }) {
+  if (amount <= 0) {
     throw new Error(ftl('roll-error-atleast-one-die'));
   }
-
   if (amount > 100) {
     throw new Error(ftl('roll-error-too-many-dice'));
   }
-
-  let sides, modifier;
-  if (diceConfig === undefined) {
-    throw new Error(ftl('roll-error-no-dice-description'));
-  }
-
-  if (diceConfig.includes('+') && diceConfig.includes('-')) {
+  if (add && subtract) {
     throw new Error(ftl('roll-error-too-many-operators'));
   }
-
-  if (diceConfig.includes('+')) {
-    [sides, modifier] = diceConfig.split('+');
-    sides = Number(sides);
-    modifier = Number(modifier);
-    if (sides <= 1) {
-      throw new Error(ftl('roll-error-too-few-dice-sides'));
-    }
-    return ftl('roll-output', {
-      amount,
-      sides,
-      modifier: `+ ${modifier}`,
-      result: rollDice(amount, sides, reroll) + Number(modifier),
-    });
-  } else if (diceConfig.includes('-')) {
-    [sides, modifier] = diceConfig.split('-');
-    sides = Number(sides);
-    modifier = Number(modifier);
-    if (sides <= 1) {
-      throw new Error(ftl('roll-error-too-few-dice-sides'));
-    }
-    return ftl('roll-output', {
-      amount,
-      sides,
-      modifier: `- ${modifier}`,
-      result: rollDice(amount, sides, reroll) - Number(modifier),
-    });
-  } else {
-    sides = diceConfig;
-    sides = Number(sides);
-
-    if (sides <= 1) {
-      throw new Error(ftl('roll-error-too-few-dice-sides'));
-    }
-    return ftl('roll-output', {
-      amount,
-      sides,
-      modifier: '',
-      result: rollDice(amount, sides, reroll),
-    });
+  if (sides <= 1) {
+    throw new Error(ftl('roll-error-too-few-dice-sides'));
   }
+  return true;
 }
 
-function getRandomNumber(max) {
-  let randomNumber = Math.floor(Math.random() * max) + 1;
-  return randomNumber;
-}
-
-function rollDice(amount, sides, reroll) {
-  let diceTotal = 0;
-
-  for (let roll = 0; roll < amount; roll++) {
-    let currentRoll;
-
-    do {
-      currentRoll = getRandomNumber(sides);
-    } while (reroll && currentRoll <= 1);
-
-    diceTotal += currentRoll;
+// Breaks down the command into the needed parts and return an object.
+function parseDiceCommand(command) {
+  let dice = new Object();
+  const commandCleaned = command.toLowerCase().split(' ').join('').split('r').join(''); // removes spaces and Rs
+  let [amount, diceConfig] = commandCleaned.split('d');
+  let [sides, modifier] = diceConfig.split('+') || diceConfig.split('-');
+  dice.reroll = command.toLowerCase().includes('r'); //Boolean
+  dice.add = diceConfig.includes('+'); //Boolean
+  dice.subtract = diceConfig.includes('-'); //Boolean
+  dice.amount = Number(amount); //Number
+  dice.sides = Number(sides); //Number
+  dice.modifier = Number(modifier) || 0; // Sets the value of the modifier to 0 if not provided.
+  if (validateRollParams(dice)) {
+    return dice;
   }
-  return diceTotal;
-}
-
-function stripContent(messageContent) {
-  const stringParts = messageContent.split(' ');
-  stringParts.shift();
-
-  const userPost = stringParts.join(' ');
-  return userPost;
 }
