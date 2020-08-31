@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 const assert = require('assert');
-const { getRandomNumber, stripContent, memberName } = require('../lib/utils');
+const { getRandomNumber, stripContent, memberName, incomingChannel } = require('../lib/utils');
 
 describe('Utilities', function () {
   describe('#getRandomNumber()', function () {
@@ -44,6 +44,20 @@ describe('Utilities', function () {
     it('should return unknown if channel type is not reconized', function () {
       let msg = require('./resources/unknownChannelName.json');
       assert.equal(memberName(msg), 'unknown');
+    });
+  });
+  describe('#incomingChannel()', function () {
+    it('should return the channel name where it was pinged', function () {
+      let msg = require('./resources/memberNameNickname.json');
+      assert.equal(incomingChannel(msg), 'testChannelName');
+    });
+    it('should return a custom name when pinged from a dm', function () {
+      let msg = require('./resources/dmNameUsername.json');
+      assert.equal(incomingChannel(msg), 'a DM');
+    });
+    it('should return unknown if channel type is not reconized', function () {
+      let msg = require('./resources/unknownChannelName.json');
+      assert.equal(incomingChannel(msg), 'unknown');
     });
   });
 });

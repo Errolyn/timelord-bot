@@ -1,6 +1,7 @@
 {
   "channel": {
-    "type": 0
+    "type": 0,
+    "name": "testChannelName"
   },
   "member": {
     "nick": null
