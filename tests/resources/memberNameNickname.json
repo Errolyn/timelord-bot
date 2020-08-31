@@ -1,0 +1,11 @@
+{
+  "channel": {
+    "type": 0
+  },
+  "member": {
+    "nick": "testNickname"
+  },
+  "author": {
+    "username": "testUsername"
+  }
+}
