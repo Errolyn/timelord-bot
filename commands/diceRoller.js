@@ -124,7 +124,7 @@ function parseDiceCommand(command) {
   let dice = new Object();
   const commandCleaned = command.toLowerCase().split(' ').join('').split('r').join(''); // removes spaces and Rs
   let [amount, diceConfig] = commandCleaned.split('d');
-  let [sides, modifier] = diceConfig.includes('+') ? diceConfig.split('+') : diceConfig.split('-');
+  let [sides, modifier] = diceConfig.split(/[+-]/);
   dice.reroll = command.toLowerCase().includes('r'); //Boolean
   dice.add = diceConfig.includes('+'); //Boolean
   dice.subtract = diceConfig.includes('-'); //Boolean
