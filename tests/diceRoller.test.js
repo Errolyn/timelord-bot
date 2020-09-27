@@ -62,11 +62,21 @@ describe('diceRoller', function () {
         subtract: true,
         amount: 2,
         sides: 8,
+        modifier: 2,
+      });
+      expect(parseDiceCommand('2d8r')).to.eql({
+        reroll: true,
+        add: false,
+        subtract: false,
+        amount: 2,
+        sides: 8,
         modifier: 0,
       });
     });
     it('should not return an invalid dice', function () {
-      expect(() => parseDiceCommand('1d4+-5')).to.throw();
+      expect(() => parseDiceCommand('1d4+-5')).to.throw(
+        /You may only have one modifier or operator/i,
+      );
     });
   });
   describe('#register()', function () {
@@ -74,7 +84,7 @@ describe('diceRoller', function () {
     register({ bot });
     it('should do something', function () {
       const result = stripFltSpecialChars(bot.triggerCommand('roll', { content: '!roll 1d4+3' }));
-      assert(result.match(/A d4 \+ 3 was rolled to get [4-7]/).length === 1);
+      assert(/A d4 \+ 3 was rolled to get [4-7]/.test(result));
     });
   });
 });
