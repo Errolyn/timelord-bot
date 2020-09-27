@@ -124,13 +124,14 @@ function parseDiceCommand(command) {
   let dice = new Object();
   const commandCleaned = command.toLowerCase().split(' ').join('').split('r').join(''); // removes spaces and Rs
   let [amount, diceConfig] = commandCleaned.split('d');
-  let [sides, modifier] = diceConfig.split('+') || diceConfig.split('-');
+  let [sides, modifier] = diceConfig.includes('+') ? diceConfig.split('+') : diceConfig.split('-');
   dice.reroll = command.toLowerCase().includes('r'); //Boolean
   dice.add = diceConfig.includes('+'); //Boolean
   dice.subtract = diceConfig.includes('-'); //Boolean
   dice.amount = Number(amount); //Number
   dice.sides = Number(sides); //Number
-  dice.modifier = Number(modifier) || 0; // Sets the value of the modifier to 0 if not provided.
+  // I really don't like using the nullish operator inside of the Number method but this is the quickest fix for the time being, it seems weird to set 0 to a number when it already is one.
+  dice.modifier = Number(modifier ?? 0); // Sets the value of the modifier to 0 if not provided.
   if (validateRollParams(dice)) {
     return dice;
   }
