@@ -4,8 +4,7 @@
   "parserOptions": { "ecmaVersion": 11 },
   "env": {
     "node": true,
-    "es6": true,
-    "mocha":true
+    "es6": true
   },
   "rules": {
     "prettier/prettier": ["error"]
