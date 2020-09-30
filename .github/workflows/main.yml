@@ -19,3 +19,5 @@ jobs:
         run: yarn lint
       - name: Run Prettier
         run: yarn format
+      - name: Run tests
+        run: yarn test

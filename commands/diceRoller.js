@@ -136,3 +136,11 @@ function parseDiceCommand(command) {
     return dice;
   }
 }
+
+module.exports.forTestsOnly = {
+  parseDiceCommand,
+  validateRollParams,
+  validateInputs,
+  rollDice,
+  formatResults,
+};
