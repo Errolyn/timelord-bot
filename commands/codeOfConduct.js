@@ -25,10 +25,11 @@ module.exports.register = ({ bot }) => {
       let userName = member.username; // in most places preferr to use nick name however nicks are not available to DMs
       let serverName = guild.name; //guild in this case it the server
       let channel = await bot.getDMChannel(member.id); //Finds the new member's DM Channel
+      let channelLink = `<#${cocChannel}>`;
 
       bot.createMessage(
         channel.id,
-        ftl('coc-welcome-prompt', { userName, serverName, cocChannel }),
+        ftl('coc-welcome-prompt', { userName, serverName, channelLink }),
       );
     });
   }

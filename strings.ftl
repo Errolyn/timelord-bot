@@ -68,7 +68,7 @@ roll-error-too-few-dice-sides = Dice must have more than one side
 # $userName - The user that joined
 # $serverName - The name of the server the user joined
 # $cocChannel - The Discord ID of the CoC channel for the server
-coc-welcome-prompt = Hi { $userName }, welcome to **{ $serverName }**! When you have a moment check out our <#{ $cocChannel }> and once you have accepted it we will give you access to the rest of the server.
+coc-welcome-prompt = Hi { $userName }, welcome to **{ $serverName }**! When you have a moment check out our { $channelLink } and once you have accepted it we will give you access to the rest of the server.
 
 acceptcoc-cmd-description = Accepts our discords Code of Conduct
 acceptcoc-cmd-full-description = Pings mods and applies the COC role if configured.
