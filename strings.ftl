@@ -1,5 +1,9 @@
 bot-description = A helpful server bot
 
+## General messages
+
+error-unknown-subcommand = Error: Unknown subcommand
+
 ## Ping Command
 
 ping-cmd-description = Pong!
@@ -76,3 +80,37 @@ acceptcoc-member-message = Thanks for accepting the Code of Conduct, a mod will 
 
 # $user - The discord formated id of the user that accepted the CoC
 acceptcoc-admin-message = { $user } has accepted the Code of Conduct.
+
+
+## Voice Channel Manager command
+
+voice-channel-cmd-description = Manage temporary voice channels
+voice-channel-cmd-full-description =
+  { voice-channel-cmd-description }. Once empty, channels will last { $channelTimeoutMinutes } minutes before expiring. Channels marked with a { $channelCleanupEmoji } will be deleted soon if no-one joins them.
+
+  When specifying the names of existing channels for deletion or renaming, case doesn't matter and any unique substring can be used. For example, "Streaming Minecraft" could be matched by specifying only "minecraft" if no other channels contain the word minecraft.
+
+voice-channel-create-cmd-description = Make a new channel with the given name.
+voice-channel-create-cmd-full-description = { voice-channel-create-cmd-description }
+voice-channel-delete-all-cmd-description = Delete ALL channels and groups made by the !vc command.
+voice-channel-delete-all-cmd-full-description = { voice-channel-delete-all-cmd-description }
+voice-channel-delete-cmd-description = Delete one channel made by the !vc command.
+voice-channel-delete-cmd-full-description = { voice-channel-delete-cmd-description }
+
+# $prefixEmoji
+# $confirmEmoji
+# $cancelEmoji
+voice-channel-cmd-delete-all-warning =
+ Are you sure you want to delete ALL { $prefixEmoji } automatic voice channels?
+
+  { $confirmEmoji } - Yes, delete them all.
+  { $cancelEmoji } - No, I changed my mind.
+
+voice-channel-cmd-delete-all-canceled = Ok, I won't delete anything.
+voice-channel-cmd-delete-all-completed = All the automatic channels are gone now!
+
+voice-channel-cmd-error-channel-not-found = I couldn't find just one { $prefixEmoji } channel with that search term. Try again?
+
+# $channelName
+voice-channel-cmd-error-channel-not-empty = You can't delete { $channelName } because people are still using it.
+voice-channel-cmd-error-channel-name-too-long = That channel name is too long, sorry.

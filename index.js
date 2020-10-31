@@ -14,7 +14,9 @@ require('http')
 
 const bot = new BotWrapper(
   process.env.TOKEN,
-  {},
+  {
+    restMode: true,
+  },
   {
     owner: 'Errolyn',
     prefix: '!',
@@ -22,7 +24,7 @@ const bot = new BotWrapper(
 );
 
 bot.on('ready', () => {
-  console.log('Ready!');
+  console.log(`Ready at ${new Date().toLocaleString()}!`);
 });
 
 bot.on('error', (err) => {
@@ -36,5 +38,6 @@ bot.registerCommand('ping', () => {
 require('./commands/newsFeed').register({ bot });
 require('./commands/diceRoller').register({ bot });
 require('./commands/codeOfConduct').register({ bot });
+require('./commands/voiceChannelManager').register({ bot });
 
 bot.connect();
