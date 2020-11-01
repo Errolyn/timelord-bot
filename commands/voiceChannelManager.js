@@ -27,7 +27,6 @@ class VcCommand {
   constructor({ bot }) {
     this.bot = bot;
     this.trackedChannels = new Map();
-    this._targetGroup = null;
 
     const vcCommand = bot.registerCommand('voice-channel', ftl('error-unknown-subcommand'), {
       aliases: ['vc'],
@@ -80,28 +79,26 @@ class VcCommand {
   }
 
   async getChannelGroup(guild) {
-    if (!this._targetGroup) {
-      const channels = await this.bot.getRESTGuildChannels(guild.id);
-      let targetGroup = channels.find((channel) => channel.name.startsWith(EMOJIS.CHANNEL_PREFIX));
-      if (!targetGroup) {
-        targetGroup = await this.bot.createChannel(
-          guild.id,
-          `${EMOJIS.CHANNEL_PREFIX} AUTO CHANNELS`,
-          CHANNEL_TYPE.GROUP,
-          {
-            reason: `To hold !vc command channels`,
-          },
-        );
-      }
-      this._targetGroup = targetGroup;
+    const channels = await this.bot.getRESTGuildChannels(guild.id);
+    let targetGroup = channels.find((channel) => channel.name.startsWith(EMOJIS.CHANNEL_PREFIX));
+    if (!targetGroup) {
+      targetGroup = await this.bot.createChannel(
+        guild.id,
+        `${EMOJIS.CHANNEL_PREFIX} AUTO CHANNELS`,
+        CHANNEL_TYPE.GROUP,
+        {
+          reason: `To hold !vc command channels`,
+        },
+      );
     }
-    return this._targetGroup;
+    return targetGroup;
   }
 
   async findChannel(guild, needle) {
     needle = needle.toLowerCase();
     const channels = await this.bot.getRESTGuildChannels(guild.id);
     let matches = channels
+      .filter((channel) => channel.type === CHANNEL_TYPE.VOICE)
       .filter((channel) => channel.name.startsWith(EMOJIS.CHANNEL_PREFIX))
       .filter((channel) => channel.name.toLowerCase().includes(needle));
     if (matches.length) {
