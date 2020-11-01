@@ -69,6 +69,11 @@ class VcCommand {
       },
     );
 
+    vcCommand.registerSubcommand('debug', (...args) => this.subcommandDebug(...args), {
+      guildOnly: true,
+      hidden: true,
+    });
+
     setInterval(() => this.cleanupTask(), CLEANUP_INTERVAL_MINUTES * 60 * 1000);
     // Check for channel updates right away, with a short delay to allow the bot to log in.
     setTimeout(() => this.cleanupTask(), 1000);
@@ -176,6 +181,40 @@ class VcCommand {
         prefixEmoji: EMOJIS.CHANNEL_PREFIX,
       });
     }
+  }
+
+  async subcommandDebug(message) {
+    let channels = await this.bot.getRESTGuildChannels(message.channel.guild.id);
+    let lines = ['Channels:'];
+    for (const channel of channels) {
+      let parts = [`* ${channel.name}`];
+
+      switch (channel.type) {
+        case CHANNEL_TYPE.VOICE:
+          parts.push('voice');
+          break;
+        case CHANNEL_TYPE.GROUP:
+          parts.push('group');
+          break;
+        case CHANNEL_TYPE.TEXT:
+          parts.push('text');
+          break;
+        default:
+          parts.push('unknown type');
+      }
+
+      if (channel.name.startsWith(EMOJIS.CHANNEL_PREFIX)) {
+        parts.push('managed');
+      }
+      if (channel.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP)) {
+        parts.push('expiring');
+      }
+      lines.push(parts.join(' - '));
+    }
+    let msg = lines.join('\n');
+    console.log('!vc debug');
+    console.log(msg);
+    return msg;
   }
 
   async getAllGuilds() {

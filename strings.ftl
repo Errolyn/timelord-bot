@@ -2,7 +2,8 @@ bot-description = A helpful server bot
 
 ## General messages
 
-error-unknown-subcommand = Error: Unknown subcommand
+error-unknown-subcommand = Unknown subcommand
+error-unknown = Uh oh, something went wrong
 
 ## Ping Command
 
@@ -96,6 +97,8 @@ voice-channel-delete-all-cmd-description = Delete ALL channels and groups made b
 voice-channel-delete-all-cmd-full-description = { voice-channel-delete-all-cmd-description }
 voice-channel-delete-cmd-description = Delete one channel made by the !vc command.
 voice-channel-delete-cmd-full-description = { voice-channel-delete-cmd-description }
+voice-channel-debug-cmd-description = Debug the !vc command.
+voice-channel-debug-cmd-full-description = { voice-channel-debug-cmd-description }
 
 # $prefixEmoji
 # $confirmEmoji
