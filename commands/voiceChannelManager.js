@@ -89,7 +89,7 @@ class VcCommand {
           `${EMOJIS.CHANNEL_PREFIX} AUTO CHANNELS`,
           CHANNEL_TYPE.GROUP,
           {
-            reason: `To hold !vc command channesl`,
+            reason: `To hold !vc command channels`,
           },
         );
       }
@@ -242,16 +242,20 @@ class VcCommand {
         .filter((c) => c.type === CHANNEL_TYPE.VOICE);
 
       // Channels that are in the process of expiring
-      let expiringChannels = autoChannels.filter((c) => c.name.includes(EMOJIS.CLEANUP));
+      let expiringChannels = autoChannels.filter((c) =>
+        c.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP),
+      );
 
       // Any occupied channels should stop expiring
       for (const channel of expiringChannels) {
         if (channel.voiceMembers.size > 0) {
           channel.name = channel.name.replace(EMOJIS.CLEANUP, '');
-          await channel.editChannel(channel.id, { name: channel.name });
+          await channel.edit(channel.id, { name: channel.name });
         }
       }
-      expiringChannels = expiringChannels.filter((c) => c.name.includes(EMOJIS.CLEANUP));
+      expiringChannels = expiringChannels.filter((c) =>
+        c.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP),
+      );
 
       // Channels with the cleanup emoji should be deleted
       const expiredChannels = autoChannels.filter((c) =>
@@ -263,7 +267,7 @@ class VcCommand {
 
       // Check for any channels that need to start expiring
       for (const channel of autoChannels) {
-        if (channel.name.includes(EMOJIS.CLEANUP)) {
+        if (channel.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP)) {
           // already handling this one
           continue;
         }
