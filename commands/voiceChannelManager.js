@@ -1,8 +1,8 @@
 let ftl = require('../lib/ftl');
+let { CHANNEL_TYPE } = require('../lib/constants');
 
 // Cleanup intervals under 5 minutes will not be reliable.
 const CLEANUP_INTERVAL_MINUTES = 5;
-const CHANNEL_TYPE = { TEXT: 0, VOICE: 2, GROUP: 4 };
 const EMOJIS = {
   CHANNEL_PREFIX: '⚡',
   SUCCESS: '✅',
@@ -19,11 +19,11 @@ for (const [name, emoji] of Object.entries(EMOJIS)) {
   }
 }
 
-module.exports.register = ({ bot }) => {
-  new VcCommand({ bot });
-};
-
 class VcCommand {
+  static register({ bot }) {
+    return new VcCommand({ bot });
+  }
+
   constructor({ bot }) {
     this.bot = bot;
     this.trackedChannels = new Map();
@@ -109,11 +109,11 @@ class VcCommand {
 
   async subcommandCreate(message, args) {
     const guild = message.channel.guild;
-    const parentGroup = await this.getChannelGroup(guild);
     const channelName = [EMOJIS.CHANNEL_PREFIX, ...args].join(' ');
     if (channelName.length > 100) {
       return ftl('voice-channel-cmd-error-channel-name-too-long');
     }
+    const parentGroup = await this.getChannelGroup(guild);
     await this.bot.createChannel(guild.id, channelName, CHANNEL_TYPE.VOICE, {
       reason: `Created by ${message.author.username} with !vc create.`,
       parentID: parentGroup.id,
@@ -159,25 +159,25 @@ class VcCommand {
 
   async subcommandDelete(message, args) {
     let channel = await this.findChannel(message.channel.guild, args.join(' '));
-    // channel is a REST channel, which doesn't have voice data. Upgrade it.
-    channel = await this.bot.getChannel(channel.id);
 
-    if (channel) {
-      if (channel.type === CHANNEL_TYPE.VOICE && channel.voiceMembers.size > 0) {
-        return ftl('voice-channel-cmd-error-channel-not-empty', { channelName: channel.name });
-      }
-
-      await channel.delete(`!vc delete ran by ${message.author.username}`);
-      await this.bot.addMessageReaction(
-        message.channel.id,
-        message.id,
-        encodeURIComponent(EMOJIS.SUCCESS),
-      );
-    } else {
+    if (!channel) {
       return ftl('voice-channel-cmd-error-channel-not-found', {
         prefixEmoji: EMOJIS.CHANNEL_PREFIX,
       });
     }
+
+    // channel is a REST channel, which doesn't have voice data. Upgrade it.
+    channel = await this.bot.getChannel(channel.id);
+    if (channel.type === CHANNEL_TYPE.VOICE && channel.voiceMembers.size > 0) {
+      return ftl('voice-channel-cmd-error-channel-not-empty', { channelName: channel.name });
+    }
+
+    await channel.delete(`!vc delete ran by ${message.author.username}`);
+    await this.bot.addMessageReaction(
+      message.channel.id,
+      message.id,
+      encodeURIComponent(EMOJIS.SUCCESS),
+    );
   }
 
   async subcommandDebug(message) {
@@ -289,3 +289,5 @@ class VcCommand {
     }
   }
 }
+
+module.exports = { register: VcCommand.register, EMOJIS };
