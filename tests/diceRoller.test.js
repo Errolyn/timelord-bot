@@ -1,5 +1,4 @@
 const expect = require('chai').expect;
-const assert = require('assert');
 const { rollDice, parseDiceCommand } = require('../commands/diceRoller').forTestsOnly;
 const { register } = require('../commands/diceRoller');
 const { MockBot } = require('./helpers/mockBot');
@@ -15,7 +14,7 @@ describe('diceRoller', function () {
     it('should never return a 1 if reroll is true', function () {
       for (let i = 0; i < 100; i++) {
         let results = rollDice({ amount: 1, sides: 4, reroll: true });
-        assert(results > 1);
+        expect(results).to.be.greaterThan(1);
       }
     });
 
@@ -28,7 +27,7 @@ describe('diceRoller', function () {
           }
         }
       }
-      assert(testResults() === 1);
+      expect(testResults()).to.equal(1);
     });
   });
   describe('#parseDiceCommand()', function () {
@@ -82,9 +81,11 @@ describe('diceRoller', function () {
   describe('#register()', function () {
     const bot = new MockBot();
     register({ bot });
-    it('should do something', function () {
-      const result = stripFltSpecialChars(bot.triggerCommand('roll', { content: '!roll 1d4+3' }));
-      assert(/A d4 \+ 3 was rolled to get [4-7]/.test(result));
+    it('should do something', async function () {
+      const result = stripFltSpecialChars(
+        await bot._triggerCommand('roll', { content: '!roll 1d4+3' }),
+      );
+      expect(result).to.match(/A d4 \+ 3 was rolled to get [4-7]/);
     });
   });
 });
