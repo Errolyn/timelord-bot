@@ -227,64 +227,49 @@ class VcCommand {
 
   async cleanupTask() {
     for (const guild of await this.getAllGuilds()) {
-      let channels = await Promise.all(
-        (await this.bot.getRESTGuildChannels(guild.id))
-          // upgrade REST channels to non-Rest channels to get membership
-          .map((c) => this.bot.getChannel(c.id)),
+      const channels = await this.bot.getRESTGuildChannels(guild.id);
+      await Promise.all(
+        channels.map(async (channel) => {
+          if (
+            !channel.name.startsWith(EMOJIS.CHANNEL_PREFIX) ||
+            channel.type !== CHANNEL_TYPE.VOICE
+          ) {
+            return;
+          }
+
+          // upgrade REST the channel to non-REST channels to get voice membership data
+          channel = await this.bot.getChannel(channel.id);
+
+          if (channel.voiceMembers.size === 0) {
+            // Empty channels should proceed through their life-cycle
+            if (channel.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP)) {
+              // Channels already marked for clean up should be deleted
+              await channel.delete('Auto channel expired');
+            } else {
+              // Otherwise mark the channel for cleanup next time
+              const newName = channel.name.replace(
+                new RegExp(`^${EMOJIS.CHANNEL_PREFIX}`),
+                EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP,
+              );
+              await channel.edit({ name: newName });
+            }
+          } else {
+            // Channel is occupied, make sure it isn't marked for cleanup
+            if (channel.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP)) {
+              const newName = channel.name.replace(EMOJIS.CLEANUP, '');
+              await channel.edit({ name: newName });
+            }
+          }
+        }),
       );
 
-      // Channels we manage
-      const autoChannels = channels
-        .filter((c) => c.name.startsWith(EMOJIS.CHANNEL_PREFIX))
-        .filter((c) => c.type === CHANNEL_TYPE.VOICE);
-
-      // Channels that are in the process of expiring
-      let expiringChannels = autoChannels.filter((c) =>
-        c.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP),
-      );
-
-      // Any occupied channels should stop expiring
-      for (const channel of expiringChannels) {
-        if (channel.voiceMembers.size > 0) {
-          channel.name = channel.name.replace(EMOJIS.CLEANUP, '');
-          await channel.edit(channel.id, { name: channel.name });
-        }
-      }
-      expiringChannels = expiringChannels.filter((c) =>
-        c.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP),
-      );
-
-      // Channels with the cleanup emoji should be deleted
-      const expiredChannels = autoChannels.filter((c) =>
-        c.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP),
-      );
-      for (const channel of expiredChannels) {
-        await channel.delete('Auto channel expired');
-      }
-
-      // Check for any channels that need to start expiring
-      for (const channel of autoChannels) {
-        if (channel.name.startsWith(EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP)) {
-          // already handling this one
-          continue;
-        }
-        if (channel.voiceMembers.size === 0) {
-          const newName = channel.name.replace(
-            EMOJIS.CHANNEL_PREFIX,
-            EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP,
-          );
-          await channel.edit({ name: newName });
-        }
-      }
-
-      // Finally, if there are no more auto-channels, remove the group
-      channels = (await this.bot.getRESTGuildChannels(guild.id)).filter((c) =>
+      // Finally, if all the remaining auto channels are groups (ie, only the
+      // group we made to hold auto channels), delete the group.
+      const autoGroupChannels = (await this.bot.getRESTGuildChannels(guild.id)).filter((c) =>
         c.name.startsWith(EMOJIS.CHANNEL_PREFIX),
       );
-      if (channels.every((c) => c.type === CHANNEL_TYPE.GROUP)) {
-        for (const channel of channels) {
-          await channel.delete('No auto channels remaining');
-        }
+      if (autoGroupChannels.every((c) => c.type === CHANNEL_TYPE.GROUP)) {
+        await Promise.all(autoGroupChannels.map((c) => c.delete('No auto channels remaining')));
       }
     }
   }

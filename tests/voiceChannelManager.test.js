@@ -7,6 +7,7 @@ const { MockBot } = require('./helpers/mockBot');
 const voiceChannelManager = require('../commands/voiceChannelManager');
 const { CHANNEL_TYPE } = require('../lib/constants');
 const { EMOJIS } = require('../commands/voiceChannelManager');
+const { userFactory } = require('./helpers/factories');
 
 chai.use(sinonChai);
 const expect = chai.expect;
@@ -151,6 +152,23 @@ describe('voiceChannelManager', () => {
       await vc.cleanupTask();
       expect(bot.deleteChannel).to.have.been.calledWith(channel.id);
       expect(bot._channels).to.have.length(1);
+    });
+
+    it('should set occupied channels back to the start of the life-cycle', async () => {
+      const bot = new MockBot({
+        channels: [
+          { name: EMOJIS.CHANNEL_PREFIX + EMOJIS.CLEANUP + ' managed', type: CHANNEL_TYPE.VOICE },
+        ],
+      });
+      const user = userFactory();
+      bot._channels[0].voiceMembers.set(user.id, user);
+      expect(bot._channels[0].voiceMembers.size).to.equal(1);
+      const vc = voiceChannelManager.register({ bot });
+
+      await vc.cleanupTask();
+      expect(bot.deleteChannel).not.to.have.been.called;
+      expect(bot._channels).to.have.length(1);
+      expect(bot._channels[0].name).to.equal(EMOJIS.CHANNEL_PREFIX + ' managed');
     });
   });
 });
