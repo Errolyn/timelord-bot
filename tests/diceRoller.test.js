@@ -2,7 +2,6 @@ const expect = require('chai').expect;
 const { rollDice, parseDiceCommand } = require('../commands/diceRoller').forTestsOnly;
 const { register } = require('../commands/diceRoller');
 const { MockBot } = require('./helpers/mockBot');
-const { stripFluentSpecialChars: stripFltSpecialChars } = require('../lib/utils');
 
 describe('diceRoller', function () {
   describe('#rollDice()', function () {
@@ -82,9 +81,7 @@ describe('diceRoller', function () {
     const bot = new MockBot();
     register({ bot });
     it('should do something', async function () {
-      const result = stripFltSpecialChars(
-        await bot._triggerCommand('roll', { content: '!roll 1d4+3' }),
-      );
+      const result = await bot._triggerCommand('roll', { content: '!roll 1d4+3' });
       expect(result).to.match(/A d4 \+ 3 was rolled to get [4-7]/);
     });
   });
