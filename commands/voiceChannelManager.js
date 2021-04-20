@@ -115,9 +115,13 @@ class VcCommand {
 
   async subcommandCreate(message, args) {
     const guild = message.channel.guild;
-    const channelName = [EMOJIS.CHANNEL_PREFIX, ...args].join(' ');
+    let channelName = [EMOJIS.CHANNEL_PREFIX, ...args].join(' ');
     if (channelName.length > 100) {
       return ftl('voice-channel-cmd-error-channel-name-too-long');
+    }
+    if (channelName.includes('->') || channelName.includes('➡️')) {
+      channelName = channelName.replace(/->|➡️/g, '');
+      console.log(channelName);
     }
     const parentGroup = await this.getChannelGroup(guild);
     await this.bot.createChannel(guild.id, channelName, CHANNEL_TYPE.VOICE, {
@@ -132,8 +136,14 @@ class VcCommand {
   }
 
   async subcommandRename(message, args) {
-    const vcNames = args.join(' ').split(' : ');
+    let vcNames = args
+      .join(' ')
+      .trim()
+      .split(/\s*(?:->|➡️)\s*/); // Looks for instances of -> and ➡️ with any number of space on either side to split on. the '?:' tells split not to capture those Delineators.
     let channel = await this.findChannel(message.channel.guild, vcNames[0]);
+    if (vcNames[1].includes('->') || vcNames[1].includes('➡️')) {
+      vcNames[1].replace(/->|➡️/g, '');
+    }
 
     if (!channel) {
       await this.bot.addMessageReaction(
@@ -146,7 +156,7 @@ class VcCommand {
       });
     }
 
-    await channel.edit({ name: vcNames[1] }).catch(console.error);
+    await channel.edit({ name: `${EMOJIS.CHANNEL_PREFIX} ${vcNames[1]}` }).catch(console.error);
     await this.bot.addMessageReaction(
       message.channel.id,
       message.id,
