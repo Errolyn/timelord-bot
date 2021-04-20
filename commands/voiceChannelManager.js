@@ -9,6 +9,7 @@ const EMOJIS = {
   CONFIRM_DELETE: '🔥',
   CANCEL_DELETE: '🙊',
   CLEANUP: '✂',
+  FAILED: '⛔',
 };
 
 // string length is number of bytes, and many emoji are not one byte. Regex can handle that better.
@@ -44,6 +45,11 @@ class VcCommand {
     });
 
     vcCommand.registerSubcommand('delete', (...args) => this.subcommandDelete(...args), {
+      argsRequired: true,
+      guildOnly: true,
+    });
+
+    vcCommand.registerSubcommand('rename', (...args) => this.subcommandRename(...args), {
       argsRequired: true,
       guildOnly: true,
     });
@@ -118,6 +124,29 @@ class VcCommand {
       reason: `Created by ${message.author.username} with !vc create.`,
       parentID: parentGroup.id,
     });
+    await this.bot.addMessageReaction(
+      message.channel.id,
+      message.id,
+      encodeURIComponent(EMOJIS.SUCCESS),
+    );
+  }
+
+  async subcommandRename(message, args) {
+    const vcNames = args.join(' ').split(' : ');
+    let channel = await this.findChannel(message.channel.guild, vcNames[0]);
+
+    if (!channel) {
+      await this.bot.addMessageReaction(
+        message.channel.id,
+        message.id,
+        encodeURIComponent(EMOJIS.FAILED),
+      );
+      return ftl('voice-channel-cmd-error-channel-not-found', {
+        prefixEmoji: EMOJIS.CHANNEL_PREFIX,
+      });
+    }
+
+    await channel.edit({ name: vcNames[1] }).catch(console.error);
     await this.bot.addMessageReaction(
       message.channel.id,
       message.id,
