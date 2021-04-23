@@ -10,6 +10,7 @@ const EMOJIS = {
   CANCEL_DELETE: '🙊',
   CLEANUP: '✂',
   FAILED: '⛔',
+  WORKING: '⌛',
 };
 
 // string length is number of bytes, and many emoji are not one byte. Regex can handle that better.
@@ -113,6 +114,13 @@ class VcCommand {
     return null;
   }
 
+  async addEmojiReaction(message, emoji) {
+    await this.bot.addMessageReaction(message.channel.id, message.id, encodeURIComponent(emoji));
+  }
+  async removeAllEmojiReactions(message) {
+    await message.removeReactions();
+  }
+
   async subcommandCreate(message, args) {
     const guild = message.channel.guild;
     let channelName = [EMOJIS.CHANNEL_PREFIX, ...args].join(' ');
@@ -121,18 +129,13 @@ class VcCommand {
     }
     if (channelName.includes('->') || channelName.includes('➡️')) {
       channelName = channelName.replace(/->|➡️/g, '');
-      console.log(channelName);
     }
     const parentGroup = await this.getChannelGroup(guild);
     await this.bot.createChannel(guild.id, channelName, CHANNEL_TYPE.VOICE, {
       reason: `Created by ${message.author.username} with !vc create.`,
       parentID: parentGroup.id,
     });
-    await this.bot.addMessageReaction(
-      message.channel.id,
-      message.id,
-      encodeURIComponent(EMOJIS.SUCCESS),
-    );
+    await this.addEmojiReaction(message, EMOJIS.SUCCESS);
   }
 
   async subcommandRename(message, args) {
@@ -140,28 +143,24 @@ class VcCommand {
       .join(' ')
       .trim()
       .split(/\s*(?:->|➡️)\s*/); // Looks for instances of -> and ➡️ with any number of space on either side to split on. the '?:' tells split not to capture those Delineators.
+
+    await this.addEmojiReaction(message, EMOJIS.WORKING);
+
     let channel = await this.findChannel(message.channel.guild, vcNames[0]);
     if (vcNames[1].includes('->') || vcNames[1].includes('➡️')) {
       vcNames[1].replace(/->|➡️/g, '');
     }
 
     if (!channel) {
-      await this.bot.addMessageReaction(
-        message.channel.id,
-        message.id,
-        encodeURIComponent(EMOJIS.FAILED),
-      );
+      await this.removeAllEmojiReactions(message);
+      await this.addEmojiReaction(message, EMOJIS.FAILED);
       return ftl('voice-channel-cmd-error-channel-not-found', {
         prefixEmoji: EMOJIS.CHANNEL_PREFIX,
       });
     }
-
-    await channel.edit({ name: `${EMOJIS.CHANNEL_PREFIX} ${vcNames[1]}` }).catch(console.error);
-    await this.bot.addMessageReaction(
-      message.channel.id,
-      message.id,
-      encodeURIComponent(EMOJIS.SUCCESS),
-    );
+    await channel.edit({ name: `${EMOJIS.CHANNEL_PREFIX} ${vcNames[1]}` });
+    await this.removeAllEmojiReactions(message);
+    await this.addEmojiReaction(message, EMOJIS.SUCCESS);
   }
 
   subcommandDeleteAllWarning() {
@@ -212,11 +211,7 @@ class VcCommand {
     }
 
     await channel.delete(`!vc delete ran by ${message.author.username}`);
-    await this.bot.addMessageReaction(
-      message.channel.id,
-      message.id,
-      encodeURIComponent(EMOJIS.SUCCESS),
-    );
+    await this.addEmojiReaction(message, EMOJIS.SUCCESS);
   }
 
   async subcommandDebug(message) {

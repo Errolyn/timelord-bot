@@ -8,6 +8,7 @@ const voiceChannelManager = require('../commands/voiceChannelManager');
 const { CHANNEL_TYPE } = require('../lib/constants');
 const { EMOJIS } = require('../commands/voiceChannelManager');
 const { userFactory } = require('./helpers/factories');
+const { it } = require('faker/lib/locales');
 
 chai.use(sinonChai);
 const expect = chai.expect;
@@ -61,6 +62,10 @@ describe('voiceChannelManager', () => {
       const { result } = await bot._triggerMessage(`!vc create ${tooLong}`);
       expect(result).to.be.a.string;
       expect(bot.createChannel).to.not.be.called;
+    });
+
+    it('should remove protected characters used as delinieators', async () => {
+      console.log('removes => and :right_arrow:');
     });
   });
 
@@ -169,6 +174,17 @@ describe('voiceChannelManager', () => {
       expect(bot.deleteChannel).not.to.have.been.called;
       expect(bot._channels).to.have.length(1);
       expect(bot._channels[0].name).to.equal(EMOJIS.CHANNEL_PREFIX + ' managed');
+    });
+  });
+
+  describe('!vc rename', () => {
+    it('should update the name of a channel', async () => {
+      // const bot = new MockBot();
+      // voiceChannelManager.register({ bot });
+      // const { result, message } = await bot._triggerMessage('!vc create test channel');
+    });
+    it('should remove protected characters used as operators', async () => {
+      console.log('no unallowed charactors allowed');
     });
   });
 });
