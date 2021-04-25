@@ -187,7 +187,7 @@ describe('voiceChannelManager', () => {
       voiceChannelManager.register({ bot });
       const { result, message } = await bot._triggerMessage(
         '!vc rename rename test -> other test channel',
-      ); //TypeError: message.removeReactions is not a function --- I think this needs to be mocked
+      );
       expect(result).to.be.undefined;
       expect(bot.editChannel).to.have.been.called;
       expect(bot.addMessageReaction).to.be.calledWith(

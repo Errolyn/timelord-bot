@@ -5,15 +5,6 @@ const { CHANNEL_TYPE } = require('../../lib/constants');
 
 const snowflake = new Snowflake();
 
-function messageFactory(args) {
-  return {
-    id: snowflake.generate(),
-    author: userFactory(),
-    channel: channelFactory(),
-    ...args,
-  };
-}
-
 function guildFactory(args) {
   return {
     id: snowflake.generate(),
@@ -41,7 +32,6 @@ function userFactory(args) {
 
 module.exports = {
   guildFactory,
-  messageFactory,
   channelFactory,
   userFactory,
 };

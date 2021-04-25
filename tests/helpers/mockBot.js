@@ -1,6 +1,10 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { guildFactory, channelFactory, messageFactory } = require('./factories');
+const Snowflake = require('snowflake-util');
+
+const { guildFactory, channelFactory, userFactory } = require('./factories');
+
+const snowflake = new Snowflake();
 
 class MockBot {
   constructor({ channels = [{}] } = {}) {
@@ -8,6 +12,7 @@ class MockBot {
     this._guild = guildFactory();
     this._auditLog = [];
     this._channels = [];
+    this._messages = {};
 
     for (const channel of channels) {
       this._addChannel(channel);
@@ -21,12 +26,13 @@ class MockBot {
       'getChannel',
       'deleteChannel',
       'editChannel',
+      'addMessageReaction',
     ];
     for (const func of methodsToWrap) {
       this[func] = sinon.fake(this[func]);
     }
 
-    let methodsToMock = ['addMessageReaction'];
+    let methodsToMock = [];
     for (const func of methodsToMock) {
       this[func] = sinon.mock();
     }
@@ -37,12 +43,15 @@ class MockBot {
   }
 
   _makeMessage(content = 'I like frogs', extras = {}) {
-    return messageFactory({
+    let message = new MockMessage({
       content,
       guild: this._guild,
       channel: channelFactory({ guild: this._guild }),
+      author: userFactory(),
       ...extras,
     });
+    this._messages[message.id] = message;
+    return message;
   }
 
   async _triggerMessage(content, extras) {
@@ -58,6 +67,10 @@ class MockBot {
     }
 
     return { result, message, args };
+  }
+
+  _getMessage(messageId) {
+    return this._messages[messageId] ?? this._makeMessage({ id: messageId });
   }
 
   _addChannel(channel) {
@@ -116,6 +129,11 @@ class MockBot {
     let index = this._channels.findIndex((c) => c.id == channelId);
     this._channels[index] = { ...this._channels[index], ...newOpts };
   }
+
+  async addMessageReaction(_channelId, messageId, reaction) {
+    let message = this._getMessage(messageId);
+    message._addReaction(reaction);
+  }
 }
 
 class MockCommand {
@@ -143,7 +161,25 @@ class MockCommand {
   }
 }
 
+class MockMessage {
+  constructor({ id = snowflake.generate(), author, channel }) {
+    this.id = id;
+    this.author = author;
+    this.channel = channel;
+    this._reactions = [];
+  }
+
+  _addReaction(emoji) {
+    this._reactions.push(emoji);
+  }
+
+  removeReactions() {
+    this._reactions = [];
+  }
+}
+
 module.exports = {
   MockBot,
   MockCommand,
+  MockMessage,
 };
