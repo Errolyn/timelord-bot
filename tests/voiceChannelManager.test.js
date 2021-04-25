@@ -8,7 +8,6 @@ const voiceChannelManager = require('../commands/voiceChannelManager');
 const { CHANNEL_TYPE } = require('../lib/constants');
 const { EMOJIS } = require('../commands/voiceChannelManager');
 const { userFactory } = require('./helpers/factories');
-const { it } = require('faker/lib/locales');
 
 chai.use(sinonChai);
 const expect = chai.expect;
@@ -179,12 +178,29 @@ describe('voiceChannelManager', () => {
 
   describe('!vc rename', () => {
     it('should update the name of a channel', async () => {
-      // const bot = new MockBot();
-      // voiceChannelManager.register({ bot });
-      // const { result, message } = await bot._triggerMessage('!vc create test channel');
+      const bot = new MockBot({
+        channels: [
+          { name: EMOJIS.CHANNEL_PREFIX + ' ' + 'rename test', type: CHANNEL_TYPE.VOICE },
+          { name: 'unmanaged', type: CHANNEL_TYPE.VOICE },
+        ],
+      });
+      voiceChannelManager.register({ bot });
+      const { result, message } = await bot._triggerMessage(
+        '!vc rename rename test -> other test channel',
+      ); //TypeError: message.removeReactions is not a function --- I think this needs to be mocked
+      expect(result).to.be.undefined;
+      expect(bot.editChannel).to.have.been.called;
+      expect(bot.addMessageReaction).to.be.calledWith(
+        message.channel.id,
+        message.id,
+        encodeURIComponent(EMOJIS.SUCCESS),
+      );
     });
     it('should remove protected characters used as operators', async () => {
       console.log('no unallowed charactors allowed');
+    });
+    it('should add waiting emoji before done emoji', async () => {
+      console.log('');
     });
   });
 });
