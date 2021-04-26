@@ -117,6 +117,7 @@ class VcCommand {
   async addEmojiReaction(message, emoji) {
     await this.bot.addMessageReaction(message.channel.id, message.id, encodeURIComponent(emoji));
   }
+  //TODO: remove this function it's superfulous
   async removeAllEmojiReactions(message) {
     await message.removeReactions();
   }
