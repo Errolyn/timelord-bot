@@ -63,7 +63,7 @@ describe('voiceChannelManager', () => {
       expect(bot.createChannel).to.not.be.called;
     });
 
-    it('should remove protected characters used as delinieators', async () => {
+    it.skip('should remove protected characters used as delinieators', async () => {
       console.log('removes => and :right_arrow:');
     });
   });
@@ -196,11 +196,27 @@ describe('voiceChannelManager', () => {
         encodeURIComponent(EMOJIS.SUCCESS),
       );
     });
-    it('should remove protected characters used as operators', async () => {
+    it.skip('should remove protected characters used as operators', async () => {
       console.log('no unallowed charactors allowed');
     });
-    it('should add waiting emoji before done emoji', async () => {
-      console.log('');
+    it.skip('should add waiting emoji before done emoji', async () => {
+      //TODO: work through with mythy later
+    });
+  });
+
+  describe('addEmojiReaction', () => {
+    it('should call addMessageReaction', async () => {
+      const bot = new MockBot();
+      const manager = voiceChannelManager.register({ bot });
+      const message = bot._makeMessage();
+
+      await manager.addEmojiReaction(message, '🐱‍');
+
+      expect(bot.addMessageReaction).to.be.calledWith(
+        message.channel.id,
+        message.id,
+        '%F0%9F%90%B1%E2%80%8D',
+      );
     });
   });
 });
