@@ -21,6 +21,14 @@ for (const [name, emoji] of Object.entries(EMOJIS)) {
   }
 }
 
+function removeDelineators(input) {
+  if (input.includes('->') || input.includes('➡️')) {
+    input = input.replace(/->|➡️/g, '');
+    return removeDelineators(input);
+  }
+  return input;
+}
+
 class VcCommand {
   static register({ bot }) {
     return new VcCommand({ bot });
@@ -117,10 +125,6 @@ class VcCommand {
   async addEmojiReaction(message, emoji) {
     await this.bot.addMessageReaction(message.channel.id, message.id, encodeURIComponent(emoji));
   }
-  //TODO: remove this function it's superfulous
-  async removeAllEmojiReactions(message) {
-    await message.removeReactions();
-  }
 
   async subcommandCreate(message, args) {
     const guild = message.channel.guild;
@@ -128,9 +132,8 @@ class VcCommand {
     if (channelName.length > 100) {
       return ftl('voice-channel-cmd-error-channel-name-too-long');
     }
-    if (channelName.includes('->') || channelName.includes('➡️')) {
-      channelName = channelName.replace(/->|➡️/g, '');
-    }
+    channelName = removeDelineators(channelName);
+
     const parentGroup = await this.getChannelGroup(guild);
     await this.bot.createChannel(guild.id, channelName, CHANNEL_TYPE.VOICE, {
       reason: `Created by ${message.author.username} with !vc create.`,
@@ -148,19 +151,18 @@ class VcCommand {
     await this.addEmojiReaction(message, EMOJIS.WORKING);
 
     let channel = await this.findChannel(message.channel.guild, vcNames[0]);
-    if (vcNames[1].includes('->') || vcNames[1].includes('➡️')) {
-      vcNames[1].replace(/->|➡️/g, '');
-    }
+
+    vcNames[1] = removeDelineators(vcNames[1]);
 
     if (!channel) {
-      await this.removeAllEmojiReactions(message);
+      await message.removeReactions(message);
       await this.addEmojiReaction(message, EMOJIS.FAILED);
       return ftl('voice-channel-cmd-error-channel-not-found', {
         prefixEmoji: EMOJIS.CHANNEL_PREFIX,
       });
     }
     await channel.edit({ name: `${EMOJIS.CHANNEL_PREFIX} ${vcNames[1]}` });
-    await this.removeAllEmojiReactions(message);
+    await message.removeReactions(message);
     await this.addEmojiReaction(message, EMOJIS.SUCCESS);
   }
 
@@ -310,4 +312,4 @@ class VcCommand {
   }
 }
 
-module.exports = { register: VcCommand.register, EMOJIS };
+module.exports = { register: VcCommand.register, EMOJIS, removeDelineators };
