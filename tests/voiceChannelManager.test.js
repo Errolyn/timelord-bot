@@ -62,9 +62,46 @@ describe('voiceChannelManager', () => {
       expect(result).to.be.a.string;
       expect(bot.createChannel).to.not.be.called;
     });
+    describe('delinieators', () => {
+      let channelNames = [
+        { input: 'new name -> Hello', expected: 'new name  Hello' },
+        { input: 'name ➡️ with right arrow', expected: 'name  with right arrow' },
+        { input: 'testing➡️➡️➡️123', expected: 'testing123' },
+        { input: 'testing->->->123', expected: 'testing123' },
+        { input: 'test-->345', expected: 'test-345' },
+        { input: '➡️test➡️', expected: 'test' },
+        { input: 'test- >123', expected: 'test- >123' },
+        { input: 'test-➡️>123', expected: 'test123' },
+      ];
 
-    it.skip('should remove protected characters used as delinieators', async () => {
-      console.log('removes => and :right_arrow:');
+      for (const { input, expected } of channelNames) {
+        it(`should remove only delinieators from ${input}`, async () => {
+          const bot = new MockBot();
+          voiceChannelManager.register({ bot });
+
+          await bot._triggerMessage(`!vc create ${input}`);
+
+          expect(bot.createChannel.secondCall).to.be.calledWith(
+            bot._guild.id,
+            `${CHANNEL_PREFIX} ${expected}`,
+            CHANNEL_TYPE.VOICE,
+            sinon.match({ reason: sinon.match.string }),
+          );
+        });
+      }
+    });
+    it('should remove protected characters used as delinieators', async () => {
+      const bot = new MockBot();
+      voiceChannelManager.register({ bot });
+
+      await bot._triggerMessage('!vc create test->channel');
+
+      expect(bot.createChannel.secondCall).to.be.calledWith(
+        bot._guild.id,
+        `${CHANNEL_PREFIX} testchannel`,
+        CHANNEL_TYPE.VOICE,
+        sinon.match({ reason: sinon.match.string }),
+      );
     });
   });
 
