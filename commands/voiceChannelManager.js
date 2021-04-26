@@ -22,9 +22,8 @@ for (const [name, emoji] of Object.entries(EMOJIS)) {
 }
 
 function removeDelineators(input) {
-  if (input.includes('->') || input.includes('➡️')) {
+  while (input.includes('->') || input.includes('➡️')) {
     input = input.replace(/->|➡️/g, '');
-    return removeDelineators(input);
   }
   return input;
 }
