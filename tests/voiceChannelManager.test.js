@@ -3,6 +3,7 @@ const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const faker = require('faker');
 
+const { Deferred } = require('../lib/utils');
 const { MockBot } = require('./helpers/mockBot');
 const voiceChannelManager = require('../commands/voiceChannelManager');
 const { CHANNEL_TYPE } = require('../lib/constants');
@@ -233,11 +234,32 @@ describe('voiceChannelManager', () => {
         encodeURIComponent(EMOJIS.SUCCESS),
       );
     });
+
     it.skip('should remove protected characters used as operators', async () => {
       console.log('no unallowed charactors allowed');
     });
-    it.skip('should add waiting emoji before done emoji', async () => {
-      //TODO: work through with mythy later
+
+    it('should show progress using emojis', async () => {
+      // Setup a bot with a channel to rename
+      const bot = new MockBot({
+        channels: [{ name: `${EMOJIS.CHANNEL_PREFIX} rename test`, type: CHANNEL_TYPE.VOICE }],
+      });
+      // Defer the channel edit
+      const channel = bot._channels[0];
+      let editChannelDeferred = new Deferred();
+      channel.edit = () => editChannelDeferred.promise;
+
+      // Trigger the rename command
+      const manager = voiceChannelManager.register({ bot });
+      const message = bot._makeMessage({ channel });
+      let renameCallPromise = manager.subcommandRename(message, [channel.name, '->', 'newName']);
+      expect(message._reactions).to.deep.equal([EMOJIS.WORKING]);
+
+      // Allow the rename to finish, which should switch the emoji to the
+      // success emoji.
+      editChannelDeferred.resolve();
+      await renameCallPromise;
+      expect(message._reactions).to.deep.equal([EMOJIS.SUCCESS]);
     });
   });
 
