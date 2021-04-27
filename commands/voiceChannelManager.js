@@ -9,6 +9,8 @@ const EMOJIS = {
   CONFIRM_DELETE: '🔥',
   CANCEL_DELETE: '🙊',
   CLEANUP: '✂',
+  FAILED: '⛔',
+  WORKING: '⌛',
 };
 
 // string length is number of bytes, and many emoji are not one byte. Regex can handle that better.
@@ -17,6 +19,13 @@ for (const [name, emoji] of Object.entries(EMOJIS)) {
   if (!emoji.match(oneChar)) {
     throw new Error(`Emojis must be just one character, ${name} is too long`);
   }
+}
+
+function removeDelineators(input) {
+  while (input.includes('->') || input.includes('➡️')) {
+    input = input.replace(/->|➡️/g, '');
+  }
+  return input;
 }
 
 class VcCommand {
@@ -44,6 +53,11 @@ class VcCommand {
     });
 
     vcCommand.registerSubcommand('delete', (...args) => this.subcommandDelete(...args), {
+      argsRequired: true,
+      guildOnly: true,
+    });
+
+    vcCommand.registerSubcommand('rename', (...args) => this.subcommandRename(...args), {
       argsRequired: true,
       guildOnly: true,
     });
@@ -107,22 +121,48 @@ class VcCommand {
     return null;
   }
 
+  async addEmojiReaction(message, emoji) {
+    await this.bot.addMessageReaction(message.channel.id, message.id, encodeURIComponent(emoji));
+  }
+
   async subcommandCreate(message, args) {
     const guild = message.channel.guild;
-    const channelName = [EMOJIS.CHANNEL_PREFIX, ...args].join(' ');
+    let channelName = [EMOJIS.CHANNEL_PREFIX, ...args].join(' ');
     if (channelName.length > 100) {
       return ftl('voice-channel-cmd-error-channel-name-too-long');
     }
+    channelName = removeDelineators(channelName);
+
     const parentGroup = await this.getChannelGroup(guild);
     await this.bot.createChannel(guild.id, channelName, CHANNEL_TYPE.VOICE, {
       reason: `Created by ${message.author.username} with !vc create.`,
       parentID: parentGroup.id,
     });
-    await this.bot.addMessageReaction(
-      message.channel.id,
-      message.id,
-      encodeURIComponent(EMOJIS.SUCCESS),
-    );
+    await this.addEmojiReaction(message, EMOJIS.SUCCESS);
+  }
+
+  async subcommandRename(message, args) {
+    let vcNames = args
+      .join(' ')
+      .trim()
+      .split(/\s*(?:->|➡️)\s*/); // Looks for instances of -> and ➡️ with any number of space on either side to split on. the '?:' tells split not to capture those Delineators.
+
+    await this.addEmojiReaction(message, EMOJIS.WORKING);
+
+    let channel = await this.findChannel(message.channel.guild, vcNames[0]);
+
+    vcNames[1] = removeDelineators(vcNames[1]);
+
+    if (!channel) {
+      await message.removeReactions(message);
+      await this.addEmojiReaction(message, EMOJIS.FAILED);
+      return ftl('voice-channel-cmd-error-channel-not-found', {
+        prefixEmoji: EMOJIS.CHANNEL_PREFIX,
+      });
+    }
+    await channel.edit({ name: `${EMOJIS.CHANNEL_PREFIX} ${vcNames[1]}` });
+    await message.removeReactions(message);
+    await this.addEmojiReaction(message, EMOJIS.SUCCESS);
   }
 
   subcommandDeleteAllWarning() {
@@ -173,11 +213,7 @@ class VcCommand {
     }
 
     await channel.delete(`!vc delete ran by ${message.author.username}`);
-    await this.bot.addMessageReaction(
-      message.channel.id,
-      message.id,
-      encodeURIComponent(EMOJIS.SUCCESS),
-    );
+    await this.addEmojiReaction(message, EMOJIS.SUCCESS);
   }
 
   async subcommandDebug(message) {
@@ -275,4 +311,4 @@ class VcCommand {
   }
 }
 
-module.exports = { register: VcCommand.register, EMOJIS };
+module.exports = { register: VcCommand.register, EMOJIS, removeDelineators };

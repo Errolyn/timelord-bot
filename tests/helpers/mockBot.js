@@ -1,6 +1,12 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const { guildFactory, channelFactory, messageFactory } = require('./factories');
+const Snowflake = require('snowflake-util');
+const faker = require('faker');
+
+const { CHANNEL_TYPE } = require('../../lib/constants');
+const { guildFactory, userFactory } = require('./factories');
+
+const snowflake = new Snowflake();
 
 class MockBot {
   constructor({ channels = [{}] } = {}) {
@@ -8,6 +14,7 @@ class MockBot {
     this._guild = guildFactory();
     this._auditLog = [];
     this._channels = [];
+    this._messages = {};
 
     for (const channel of channels) {
       this._addChannel(channel);
@@ -21,14 +28,10 @@ class MockBot {
       'getChannel',
       'deleteChannel',
       'editChannel',
+      'addMessageReaction',
     ];
     for (const func of methodsToWrap) {
       this[func] = sinon.fake(this[func]);
-    }
-
-    let methodsToMock = ['addMessageReaction'];
-    for (const func of methodsToMock) {
-      this[func] = sinon.mock();
     }
   }
 
@@ -37,12 +40,15 @@ class MockBot {
   }
 
   _makeMessage(content = 'I like frogs', extras = {}) {
-    return messageFactory({
+    let message = new MockMessage({
       content,
       guild: this._guild,
-      channel: channelFactory({ guild: this._guild }),
+      channel: new MockChannel({ guild: this._guild }),
+      author: userFactory(),
       ...extras,
     });
+    this._messages[message.id] = message;
+    return message;
   }
 
   async _triggerMessage(content, extras) {
@@ -60,11 +66,15 @@ class MockBot {
     return { result, message, args };
   }
 
+  _getMessage(messageId) {
+    return this._messages[messageId] ?? this._makeMessage({ id: messageId });
+  }
+
   _addChannel(channel) {
     if (channel.guild && channel.guild != this._guild) {
       throw new Error("Can't have more than one guild on mockbot");
     }
-    const builtChannel = channelFactory({ ...channel, guild: this._guild });
+    const builtChannel = new MockChannel({ ...channel, guild: this._guild });
     expect(builtChannel).to.have.property('id');
 
     builtChannel.delete = () => this.deleteChannel(builtChannel.id);
@@ -89,7 +99,7 @@ class MockBot {
 
   createChannel(guildId, name, type, reason) {
     expect(guildId).to.equal(this._guild.id);
-    let channel = channelFactory({ name, type, guild: this._guild });
+    let channel = new MockChannel({ name, type, guild: this._guild });
     this._auditLog.push(reason);
     this._addChannel(channel);
     return channel;
@@ -115,6 +125,11 @@ class MockBot {
   async editChannel(channelId, newOpts) {
     let index = this._channels.findIndex((c) => c.id == channelId);
     this._channels[index] = { ...this._channels[index], ...newOpts };
+  }
+
+  async addMessageReaction(_channelId, messageId, reaction) {
+    let message = this._getMessage(messageId);
+    message._addReaction(reaction);
   }
 }
 
@@ -143,7 +158,49 @@ class MockCommand {
   }
 }
 
+class MockMessage {
+  constructor({ id = snowflake.generate(), author, channel }) {
+    this.id = id;
+    this.author = author;
+    this.channel = channel;
+    this._reactions = [];
+  }
+
+  _addReaction(emoji) {
+    this._reactions.push(decodeURIComponent(emoji));
+  }
+
+  removeReactions() {
+    this._reactions = [];
+  }
+}
+
+class MockChannel {
+  constructor({
+    id = snowflake.generate(),
+    name = faker.lorem.slug(),
+    type = CHANNEL_TYPE.TEXT,
+    guild = guildFactory(),
+  } = {}) {
+    this.id = id;
+    this.name = name;
+    this.type = type;
+    this.guild = guild;
+    this.voiceMembers = new Map();
+
+    let methodsToWrap = ['edit'];
+    for (const func of methodsToWrap) {
+      this[func] = sinon.fake(this[func]);
+    }
+  }
+
+  async edit({ name }) {
+    this.name = name;
+  }
+}
+
 module.exports = {
   MockBot,
   MockCommand,
+  MockMessage,
 };

@@ -99,6 +99,8 @@ voice-channel-delete-cmd-description = Delete one channel made by the !vc comman
 voice-channel-delete-cmd-full-description = { voice-channel-delete-cmd-description }
 voice-channel-debug-cmd-description = Debug the !vc command.
 voice-channel-debug-cmd-full-description = { voice-channel-debug-cmd-description }
+voice-channel-rename-cmd-description = Updates a current channel's name.
+voice-channel-rename-cmd-full-description = { voice-channel-rename-cmd-description }
 
 # $prefixEmoji
 # $confirmEmoji
