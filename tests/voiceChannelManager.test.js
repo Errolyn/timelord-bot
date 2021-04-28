@@ -80,7 +80,6 @@ describe('voiceChannelManager', () => {
         name: `${CHANNEL_PREFIX} ${faker.lorem.words(3)}`,
         type: CHANNEL_TYPE.VOICE,
       });
-
       voiceChannelManager.register({ bot });
       const { result, message } = await bot._triggerMessage(`!vc delete ${voiceChannel.name}`);
       expect(result).to.be.undefined;
