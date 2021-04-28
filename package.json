@@ -14,7 +14,7 @@
     "start": "ts-node -r dotenv/config index.ts",
     "lint": "tsc --project . --noemit && eslint . --ext .js --ext .ts",
     "fix": "eslint . --fix --ext .js --ext .ts",
-    "format": "prettier ./.eslintrc.json -c **/*",
+    "format": "prettier --check ./.eslintrc.js ./tests/.eslintrc.json **/*",
     "test": "mocha",
     "coverage": "nyc npm run test"
   },
